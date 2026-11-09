@@ -4,7 +4,11 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+<<<<<<< HEAD
 import { LocationConfig } from './types';
+=======
+import { LocationConfig, MulticustomerClient } from './types';
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 import { LocationForm } from './components/LocationForm';
 import { NetworkDiagram } from './components/NetworkDiagram';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -13,10 +17,27 @@ import { ServiceBuilderModal } from './components/ServiceBuilderModal';
 import { Language, translations } from './i18n/translations';
 import { getNextMediantHostname } from './utils/ip';
 import { v4 as uuidv4 } from 'uuid';
+<<<<<<< HEAD
 import { Sun, Moon, Plus, Building2, MapPin, ArrowRight, FileText, Trash2, Edit2, FolderOpen, Download, Hash, BookOpen, Save, ChevronDown, Folder, Settings, Check, Sliders } from 'lucide-react';
 
 const createBlankLocation = (custName: string, locName: string, currentLocations: LocationConfig[] = []): LocationConfig => {
   const nextHostname = getNextMediantHostname(currentLocations);
+=======
+import { Sun, Moon, Plus, Building2, MapPin, ArrowRight, FileText, Trash2, Edit2, FolderOpen, Download, Hash, BookOpen, Save, ChevronDown, Folder, Settings, Check, Sliders, Layers, Sparkles } from 'lucide-react';
+import { getAllServices, getVoiceServices, getDataServices, findServiceDefinition } from './data/servicesStore';
+import { getEspritConfigByNumber } from './data/espritConfigs';
+
+const createBlankLocation = (
+  custName: string, 
+  locName: string, 
+  currentLocations: LocationConfig[] = [],
+  initialServiceType = ''
+): LocationConfig => {
+  const isDataSvc = initialServiceType ? findServiceDefinition(initialServiceType)?.category === 'data' : false;
+  const nextHostname = isDataSvc 
+    ? `ROUTER-${(currentLocations.length + 1).toString().padStart(2, '0')}`
+    : getNextMediantHostname(currentLocations);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   return {
     id: uuidv4(),
     customerName: custName,
@@ -26,19 +47,91 @@ const createBlankLocation = (custName: string, locName: string, currentLocations
       {
         id: uuidv4(),
         hostname: nextHostname,
+<<<<<<< HEAD
         serviceType: '', // Default leeg laten zoals verzocht
+=======
+        serviceType: initialServiceType,
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
         wanIp: '',
         lanIpCpe: '',
         lanSubnet: '255.255.255.0 (/24)',
         defaultGateway: '',
         cnWanIp: '',
         cnLanIp: '',
+<<<<<<< HEAD
         pbxs: [{ id: uuidv4(), ip: '' }]
+=======
+        pbxs: isDataSvc ? [] : [{ id: uuidv4(), ip: '' }]
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
       }
     ]
   };
 };
 
+<<<<<<< HEAD
+=======
+const createEspritLocation = (
+  custName: string,
+  configNr = '001',
+  serviceCode = 'Multicustomer Esprit'
+): LocationConfig => {
+  let clientName: MulticustomerClient = 'Esprit';
+  if (serviceCode.includes('Kinwel')) {
+    clientName = 'Kinwel';
+  } else if (serviceCode.includes('IP Voice Group') || serviceCode.includes('IP Services Group')) {
+    clientName = 'IP Voice Group';
+  }
+  const cfg = getEspritConfigByNumber(configNr, clientName);
+  const hostname006 = cfg.hostname006 || (clientName === 'Kinwel' ? 'DS4-M2600-ASD-002' : (clientName === 'IP Voice Group' ? 'UFC-M2600-ASD-006' : 'N2G-M4000-ASD-006'));
+  const hostname007 = cfg.hostname007 || (clientName === 'Kinwel' ? 'DS4-M2600-ASD-005' : (clientName === 'IP Voice Group' ? 'UFC-M2600-ASD-002' : 'N2G-M4000-ASD-007'));
+  const defaultSubnet = clientName === 'Kinwel' ? '255.255.254.0 (/23)' : '255.255.252.0 (/22)';
+
+  const cpe1 = {
+    id: uuidv4(),
+    hostname: hostname006,
+    serviceType: serviceCode as any,
+    multicustomerClient: clientName,
+    multicustomerVariant: 'VOV' as const,
+    multicustomerConfigNr: cfg.configNr,
+    wanIp: cfg.mediant006.wanIp,
+    lanIpCpe: cfg.mediant006.lanIp,
+    lanSubnet: defaultSubnet,
+    defaultGateway: cfg.sipLanIpGw,
+    pbxs: [{
+      id: uuidv4(),
+      name: 'SIP PBX',
+      ip: cfg.primaryPbxIp,
+      brand: 'Overig'
+    }]
+  };
+
+  const cpe2 = {
+    id: uuidv4(),
+    hostname: hostname007,
+    serviceType: serviceCode as any,
+    multicustomerClient: clientName,
+    multicustomerVariant: 'VOV' as const,
+    multicustomerConfigNr: cfg.configNr,
+    wanIp: cfg.mediant007.wanIp,
+    lanIpCpe: cfg.mediant007.lanIp,
+    lanSubnet: defaultSubnet,
+    defaultGateway: cfg.sipLanIpGw,
+    pbxs: []
+  };
+
+  return {
+    id: uuidv4(),
+    customerName: custName,
+    locationName: '',
+    showDemarcationLine: false,
+    isMulticustomer: true,
+    multicustomerClient: clientName,
+    multicustomerConfigNr: cfg.configNr,
+    cpes: [cpe1, cpe2]
+  };
+};
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 export default function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     try {
@@ -107,6 +200,18 @@ export default function App() {
     };
   }, [isFileMenuOpen, isSettingsMenuOpen]);
 
+<<<<<<< HEAD
+=======
+  // Diensttype keuze bij opstarten (eerst vragen naar de dienst die gebouwd moet worden)
+  const [selectedServiceCode, setSelectedServiceCode] = useState<string>('');
+  const [startupCategory, setStartupCategory] = useState<'voice' | 'data' | null>(null);
+  const [serviceBuilderCategory, setServiceBuilderCategory] = useState<'voice' | 'data'>('voice');
+
+  const selectedServiceDef = React.useMemo(() => {
+    return findServiceDefinition(selectedServiceCode);
+  }, [selectedServiceCode, servicesVersion]);
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   // Klantnaam en Projectnummer (standaard leeg)
   const [customerName, setCustomerName] = useState<string>('');
   const [inputCustomer, setInputCustomer] = useState<string>('');
@@ -149,6 +254,102 @@ export default function App() {
     setLocations(prev => prev.map(loc => ({ ...loc, customerName: trimmed })));
   };
 
+<<<<<<< HEAD
+=======
+  const isEspritService = selectedServiceCode === 'Multicustomer Esprit' || 
+                          selectedServiceCode === 'Multicustomer - Esprit' || 
+                          selectedServiceCode === 'Multicustomer IP Voice Group' ||
+                          selectedServiceCode === 'Multicustomer - IP Voice Group' ||
+                          selectedServiceCode === 'Multicustomer IP Services Group' ||
+                          selectedServiceCode === 'Multicustomer - IP Services Group' ||
+                          selectedServiceCode === 'Multicustomer Kinwel' ||
+                          selectedServiceCode === 'Multicustomer - Kinwel' ||
+                          selectedServiceCode.includes('Kinwel') ||
+                          selectedServiceCode.startsWith('Multicustomer');
+
+  // Voor Multicustomer Esprit / IP Services Group: nooit om locatie vragen; direct initialiseren zodra klantnaam en projectnummer ingevuld/overgeslagen zijn
+  useEffect(() => {
+    if (isEspritService && customerName && hasAskedProject && locations.length === 0) {
+      const espritLoc = createEspritLocation(customerName, '001', selectedServiceCode);
+      setLocations([espritLoc]);
+      setActiveLocationId(espritLoc.id);
+    }
+  }, [isEspritService, customerName, hasAskedProject, locations.length, selectedServiceCode]);
+
+  // Synchroniseer bestaande multicustomer locaties als geselecteerde dienst 'IP Voice Group' of 'Kinwel' is
+  useEffect(() => {
+    if (selectedServiceCode.includes('Kinwel')) {
+      setLocations(prev => {
+        let changed = false;
+        const next = prev.map(loc => {
+          const isMulti = loc.isMulticustomer || (loc.cpes || []).some(c => c.isMulticustomer || c.serviceType?.startsWith('Multicustomer'));
+          if (isMulti && (loc.multicustomerClient !== 'Kinwel' || (loc.cpes || []).some(c => c.multicustomerClient !== 'Kinwel' || c.hostname.includes('N2G') || c.hostname.includes('UFC')))) {
+            changed = true;
+            const cfg = getEspritConfigByNumber(loc.multicustomerConfigNr || '001', 'Kinwel');
+            return {
+              ...loc,
+              multicustomerClient: 'Kinwel' as MulticustomerClient,
+              cpes: (loc.cpes || []).map((c, idx) => {
+                const is006 = idx === 0 || c.hostname.includes('006') || c.hostname.includes('ASD-002');
+                const medData = is006 ? cfg.mediant006 : cfg.mediant007;
+                return {
+                  ...c,
+                  serviceType: 'Multicustomer Kinwel' as any,
+                  multicustomerClient: 'Kinwel' as MulticustomerClient,
+                  hostname: is006 ? 'DS4-M2600-ASD-002' : 'DS4-M2600-ASD-005',
+                  wanIp: medData.wanIp,
+                  lanIpCpe: medData.lanIp,
+                  lanSubnet: '255.255.254.0 (/23)',
+                  defaultGateway: cfg.sipLanIpGw,
+                  ...(is006 && c.pbxs?.[0] ? {
+                    pbxs: [{ ...c.pbxs[0], ip: cfg.primaryPbxIp }]
+                  } : {})
+                };
+              })
+            };
+          }
+          return loc;
+        });
+        return changed ? next : prev;
+      });
+    } else if (selectedServiceCode.includes('IP Voice Group') || selectedServiceCode.includes('IP Services Group')) {
+      setLocations(prev => {
+        let changed = false;
+        const next = prev.map(loc => {
+          const isMulti = loc.isMulticustomer || (loc.cpes || []).some(c => c.isMulticustomer || c.serviceType?.startsWith('Multicustomer'));
+          if (isMulti && (loc.multicustomerClient !== 'IP Voice Group' || (loc.cpes || []).some(c => c.multicustomerClient !== 'IP Voice Group' || c.hostname.includes('N2G') || c.hostname.includes('Mediant') || c.hostname.includes('DS4')))) {
+            changed = true;
+            const cfg = getEspritConfigByNumber(loc.multicustomerConfigNr || '001', 'IP Voice Group');
+            return {
+              ...loc,
+              multicustomerClient: 'IP Voice Group' as MulticustomerClient,
+              cpes: (loc.cpes || []).map((c, idx) => {
+                const is006 = idx === 0 || c.hostname.includes('006') || c.hostname.includes('ASD-006');
+                const medData = is006 ? cfg.mediant006 : cfg.mediant007;
+                return {
+                  ...c,
+                  serviceType: 'Multicustomer IP Voice Group' as any,
+                  multicustomerClient: 'IP Voice Group' as MulticustomerClient,
+                  hostname: is006 ? 'UFC-M2600-ASD-006' : 'UFC-M2600-ASD-002',
+                  wanIp: medData.wanIp,
+                  lanIpCpe: medData.lanIp,
+                  lanSubnet: '255.255.252.0 (/22)',
+                  defaultGateway: cfg.sipLanIpGw,
+                  ...(is006 && c.pbxs?.[0] ? {
+                    pbxs: [{ ...c.pbxs[0], ip: cfg.primaryPbxIp }]
+                  } : {})
+                };
+              })
+            };
+          }
+          return loc;
+        });
+        return changed ? next : prev;
+      });
+    }
+  }, [selectedServiceCode]);
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   // Stap 2: Projectnummer opslaan (altijd exact 8 tekens/digits, letters altijd als hoofdletters)
   const handleConfirmProject = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -156,6 +357,14 @@ export default function App() {
     if (cleaned.length !== 8) return;
     setProjectNumber(cleaned);
     setHasAskedProject(true);
+<<<<<<< HEAD
+=======
+    if (isEspritService && locations.length === 0) {
+      const espritLoc = createEspritLocation(customerName, '001', selectedServiceCode);
+      setLocations([espritLoc]);
+      setActiveLocationId(espritLoc.id);
+    }
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   };
 
   // Opslaan bij bewerken van zowel klant als projectnummer
@@ -170,12 +379,26 @@ export default function App() {
     setProjectNumber(cleanedProj);
     setHasAskedProject(true);
     setIsEditingCustomer(false);
+<<<<<<< HEAD
     setLocations(prev => prev.map(loc => ({ ...loc, customerName: trimmedCust })));
+=======
+    if (isEspritService && locations.length === 0) {
+      const espritLoc = createEspritLocation(trimmedCust, '001', selectedServiceCode);
+      setLocations([espritLoc]);
+      setActiveLocationId(espritLoc.id);
+    } else {
+      setLocations(prev => prev.map(loc => ({ ...loc, customerName: trimmedCust })));
+    }
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   };
 
   // Direct een nieuwe locatie toevoegen
   const handleAddNewLocationDirect = (name: string = '') => {
+<<<<<<< HEAD
     const newLoc = createBlankLocation(customerName, name, locations);
+=======
+    const newLoc = createBlankLocation(customerName, name, locations, selectedServiceCode);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     setLocations([...locations, newLoc]);
     setActiveLocationId(newLoc.id);
     setShowAddLocationInput(false);
@@ -223,7 +446,11 @@ export default function App() {
     const parts: string[] = [];
     if (customerName.trim()) parts.push(customerName.trim());
     if (projectNumber.trim()) parts.push(projectNumber.trim());
+<<<<<<< HEAD
     if (parts.length === 0) parts.push('SIP-Design');
+=======
+    if (parts.length === 0) parts.push('Design-Maker');
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
     const safeTitle = parts.join('_').replace(/[\s/\\:]+/g, '_');
     const link = document.createElement('a');
@@ -277,6 +504,11 @@ export default function App() {
         setLocations(loadedLocations);
         if (loadedLocations.length > 0) {
           setActiveLocationId(loadedLocations[0].id);
+<<<<<<< HEAD
+=======
+          const firstSvc = loadedLocations[0].cpes?.[0]?.serviceType;
+          if (firstSvc) setSelectedServiceCode(firstSvc);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
         } else {
           setActiveLocationId(null);
         }
@@ -359,6 +591,11 @@ export default function App() {
 
   // Reset naar leeg beginpunt
   const handleResetToBlank = () => {
+<<<<<<< HEAD
+=======
+    setSelectedServiceCode('');
+    setStartupCategory(null);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     setCustomerName('');
     setInputCustomer('');
     setProjectNumber('');
@@ -397,7 +634,11 @@ export default function App() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 002-2h-2a2 2 0 002 2"></path></svg>
             </div>
             <h1 className={`text-base font-bold leading-tight ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>
+<<<<<<< HEAD
               SIP Design Maker
+=======
+              Design Maker
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
             </h1>
           </div>
 
@@ -530,7 +771,11 @@ export default function App() {
                     </button>
                   </div>
 
+<<<<<<< HEAD
                   {/* Diensten Bouwer (Service Builder) */}
+=======
+                  {/* Templates (Service Builder) */}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                   <div className="mb-2">
                     <button
                       onClick={() => {
@@ -549,13 +794,21 @@ export default function App() {
                         </div>
                         <div className="text-left">
                           <div className="font-bold flex items-center gap-1.5 leading-tight">
+<<<<<<< HEAD
                             <span>{t.serviceBuilder || 'Diensten Bouwer'}</span>
+=======
+                            <span>{t.serviceBuilder || 'Templates'}</span>
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                             <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-blue-600 text-white leading-none">
                               Nieuw
                             </span>
                           </div>
                           <div className="text-[10px] text-slate-500 dark:text-slate-400 font-normal leading-tight mt-0.5">
+<<<<<<< HEAD
                             Configs &amp; onderdelen kiezen
+=======
+                            Templates &amp; onderdelen beheren
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                           </div>
                         </div>
                       </div>
@@ -674,9 +927,158 @@ export default function App() {
             darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
           }`}>
             
+<<<<<<< HEAD
             {/* STAP 1: Vraag Klantnaam als nog niet ingevuld */}
             {!customerName ? (
               <div className="p-6 flex flex-col justify-start">
+=======
+            {/* STAP 0: Vraag eerst naar de dienst die gebouwd moet worden (Voice of Data) */}
+            {!selectedServiceCode && locations.length === 0 ? (
+              <div className="p-5 flex flex-col h-full overflow-hidden">
+                <div className="flex items-center gap-2 mb-2 shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shrink-0">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className={`text-sm font-bold ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>
+                      Kies de gewenste dienst
+                    </h2>
+                    <p className={`text-[11px] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      Selecteer een Voice of Data dienst om te ontwerpen
+                    </p>
+                  </div>
+                </div>
+
+                {/* Keuze tussen Voice of Data diensten */}
+                <div className={`p-1 rounded-xl border grid grid-cols-2 gap-1 text-xs font-bold my-2 shrink-0 ${
+                  darkMode ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-100 border-slate-200'
+                }`}>
+                  <button
+                    type="button"
+                    onClick={() => setStartupCategory(prev => prev === 'voice' ? null : 'voice')}
+                    className={`py-2 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      startupCategory === 'voice'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <span>🎙️ Voice Diensten</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${startupCategory === 'voice' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}>
+                      {getVoiceServices().length}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setStartupCategory(prev => prev === 'data' ? null : 'data')}
+                    className={`py-2 px-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      startupCategory === 'data'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <span>🌐 Data Diensten</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${startupCategory === 'data' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700'}`}>
+                      {getDataServices().length}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Lijst met beschikbare diensten van de gekozen categorie (of een duidelijke instructie als er nog niets is geselecteerd) */}
+                <div className="space-y-2 flex-1 overflow-y-auto pr-0.5">
+                  {(() => {
+                    if (!startupCategory) {
+                      return (
+                        <div className={`p-6 rounded-2xl border border-dashed text-center flex flex-col items-center justify-center my-4 ${
+                          darkMode ? 'border-slate-800 bg-slate-850/40 text-slate-400' : 'border-slate-200 bg-slate-50/60 text-slate-500'
+                        }`}>
+                          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
+                            <Sparkles className="w-5 h-5" />
+                          </div>
+                          <p className="text-xs font-bold text-slate-700 dark:text-slate-200">Kies een categorie</p>
+                          <p className="text-[11px] text-slate-400 mt-1.5 max-w-[260px] leading-relaxed">
+                            Klik op <strong className="text-blue-600 dark:text-blue-400">🎙️ Voice Diensten</strong> of <strong className="text-blue-600 dark:text-blue-400">🌐 Data Diensten</strong> hierboven om de beschikbare templates te bekijken.
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    const services = startupCategory === 'voice' ? getVoiceServices() : getDataServices();
+                    if (services.length === 0) {
+                      return (
+                        <div className={`p-8 rounded-xl border border-dashed text-center flex flex-col items-center justify-center ${
+                          darkMode ? 'border-slate-800 bg-slate-850/40 text-slate-400' : 'border-slate-200 bg-slate-50/60 text-slate-500'
+                        }`}>
+                          <p className="text-xs font-semibold">Nog geen templates beschikbaar</p>
+                          <p className="text-[11px] text-slate-400 mt-1 max-w-[280px]">
+                            Er zijn momenteel nog geen templates gemaakt voor {startupCategory === 'data' ? 'data diensten' : 'voice diensten'}. U kunt deze ontwerpen in de Template Studio.
+                          </p>
+                        </div>
+                      );
+                    }
+                    return services.map(svc => (
+                      <button
+                        key={svc.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedServiceCode(svc.code);
+                        }}
+                        className={`w-full text-left px-3 py-2.5 rounded-xl border transition-all cursor-pointer group hover:scale-[1.01] hover:border-blue-500 ${
+                          darkMode 
+                            ? 'bg-slate-800/60 hover:bg-slate-800 border-slate-700/80 text-slate-200' 
+                            : 'bg-white hover:bg-blue-50/40 border-slate-200 shadow-2xs'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 shrink-0">
+                              {svc.code}
+                            </span>
+                            {svc.name && svc.name !== svc.code && (
+                              <span className={`text-xs font-bold truncate ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>
+                                {svc.name}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {!svc.isBuiltIn && (
+                              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded">
+                                Eigen template
+                              </span>
+                            )}
+                            <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                          </div>
+                        </div>
+                      </button>
+                    ));
+                  })()}
+                </div>
+              </div>
+            ) : !customerName ? (
+              /* STAP 1: Vraag Klantnaam als nog niet ingevuld */
+              <div className="p-6 flex flex-col justify-start">
+                {/* Gekozen Dienst Badge met Wijzigknop */}
+                {selectedServiceCode && (
+                  <div className={`p-2.5 rounded-xl border mb-4 flex items-center justify-between ${
+                    darkMode ? 'bg-slate-850 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Gekozen Dienst:</span>
+                      <span className="text-xs font-bold text-blue-600 dark:text-blue-400 truncate">
+                        {selectedServiceDef ? `${selectedServiceDef.code} (${selectedServiceDef.category === 'data' ? '🌐 Data' : '🎙️ Voice'})` : selectedServiceCode}
+                      </span>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => setSelectedServiceCode('')} 
+                      className="text-[11px] text-blue-500 hover:underline font-semibold shrink-0 cursor-pointer"
+                    >
+                      Wijzigen
+                    </button>
+                  </div>
+                )}
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                 <div className="flex items-center gap-2 mb-3">
                   <Building2 className={`w-5 h-5 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
                   <h2 className={`text-base font-bold ${darkMode ? 'text-slate-100' : 'text-slate-800'}`}>{t.customer}</h2>
@@ -793,6 +1195,14 @@ export default function App() {
                         setProjectNumber('');
                         setInputProjectNumber('');
                         setHasAskedProject(true);
+<<<<<<< HEAD
+=======
+                        if (isEspritService && locations.length === 0) {
+                          const espritLoc = createEspritLocation(customerName, '001', selectedServiceCode);
+                          setLocations([espritLoc]);
+                          setActiveLocationId(espritLoc.id);
+                        }
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                       }}
                       className={`px-3 py-2.5 rounded-lg text-xs font-semibold border transition-colors ${
                         darkMode ? 'border-slate-700 text-slate-400 hover:bg-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-100'
@@ -869,8 +1279,13 @@ export default function App() {
                   </div>
                 </form>
               </div>
+<<<<<<< HEAD
             ) : locations.length === 0 ? (
               /* ZODRA KLANT & PROJECTNUMMER ZIJN INGEVULD EN BEVESTIGD: Vragen om locatie(s) */
+=======
+            ) : (locations.length === 0 && !isEspritService) ? (
+              /* ZODRA KLANT & PROJECTNUMMER ZIJN INGEVULD EN BEVESTIGD: Vragen om locatie(s) (nooit bij Multicustomer Esprit) */
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
               <div className="p-6 flex flex-col h-full overflow-y-auto">
                 {/* Klant en projectnummer weergave met wijzigknop */}
                 <div className={`p-3 rounded-xl border mb-6 flex items-center justify-between transition-colors ${
@@ -971,7 +1386,11 @@ export default function App() {
               /* ZODRA ER EEN LOCATIE IS: Klantbalk + Locaties tabs + Active Location Form */
               <div className="flex flex-col h-full overflow-hidden">
                 {/* Klant header compact (niet tonen bij Multicustomer omdat formulier zelf direct Klant en Projectnummer bevat) */}
+<<<<<<< HEAD
                 {!locations.some(l => l.isMulticustomer || (l.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.isMulticustomer)) && (
+=======
+                {!locations.some(l => l.isMulticustomer || (l.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.serviceType === 'Multicustomer - Esprit' || c.serviceType?.startsWith('Multicustomer') || c.isMulticustomer)) && (
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                   <div className={`px-4 py-2.5 border-b flex items-center justify-between shrink-0 ${
                     darkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'
                   }`}>
@@ -1006,7 +1425,11 @@ export default function App() {
                 )}
 
                 {/* Locaties balk (Verticaal onder elkaar bij meerdere locaties zodat alle lange locatienamen goed leesbaar zijn) */}
+<<<<<<< HEAD
                 {!locations.some(l => l.isMulticustomer || (l.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.isMulticustomer)) && (
+=======
+                {!locations.some(l => l.isMulticustomer || (l.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.serviceType === 'Multicustomer - Esprit' || c.serviceType?.startsWith('Multicustomer') || c.isMulticustomer)) && (
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                   <div className={`px-4 py-2.5 border-b shrink-0 ${
                     darkMode ? 'bg-slate-850 border-slate-800' : 'bg-white border-slate-200'
                   }`}>
@@ -1120,6 +1543,11 @@ export default function App() {
               onUpdateLocations={setLocations}
               onUpdateCustomerName={setCustomerName}
               onUpdateProjectNumber={setProjectNumber}
+<<<<<<< HEAD
+=======
+              selectedServiceCode={selectedServiceCode}
+              startupCategory={startupCategory}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
             />
 
             {/* Drag & Drop JSON bestand overlay */}
@@ -1157,11 +1585,19 @@ export default function App() {
           darkMode={darkMode}
         />
 
+<<<<<<< HEAD
         {/* Diensten Bouwer / Service Builder Modal */}
+=======
+        {/* Templates Modal */}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
         <ServiceBuilderModal 
           isOpen={isServiceBuilderOpen}
           onClose={() => setIsServiceBuilderOpen(false)}
           darkMode={darkMode}
+<<<<<<< HEAD
+=======
+          initialCategory={serviceBuilderCategory}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
           onServicesUpdated={() => {
             setServicesVersion(v => v + 1);
           }}

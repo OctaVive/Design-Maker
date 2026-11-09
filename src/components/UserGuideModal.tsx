@@ -92,7 +92,11 @@ export function UserGuideModal({ isOpen, onClose, language, darkMode = false }: 
               </div>
             </div>
 
+<<<<<<< HEAD
             {/* Diensten Bouwstudio (Zelf Diensten Samenstellen) */}
+=======
+            {/* Templates (Zelf Telecom-Templates Samenstellen) */}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
             <div className={`p-4 rounded-xl border transition-all md:col-span-2 ${
               darkMode ? 'bg-slate-800/80 border-blue-500/40 hover:border-blue-500/70' : 'bg-blue-50/70 border-blue-200 hover:border-blue-400'
             }`}>
@@ -112,6 +116,10 @@ export function UserGuideModal({ isOpen, onClose, language, darkMode = false }: 
                 <span className="bg-blue-100/80 dark:bg-blue-900/50 px-2 py-0.5 rounded-md">Connectoren bewegen mee</span>
                 <span className="bg-blue-100/80 dark:bg-blue-900/50 px-2 py-0.5 rounded-md">Scrollwiel = In-/Uitzoomen</span>
                 <span className="bg-blue-100/80 dark:bg-blue-900/50 px-2 py-0.5 rounded-md">DEL = Wissen</span>
+<<<<<<< HEAD
+=======
+                <span className="bg-emerald-100/90 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md font-bold">📋 Automatisch Uitvraagscenario per element</span>
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
               </div>
             </div>
 

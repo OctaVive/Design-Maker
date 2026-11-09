@@ -144,7 +144,11 @@ export interface Translations {
 
 export const translations: Record<Language, Translations> = {
   nl: {
+<<<<<<< HEAD
     appName: 'SIP Design Maker',
+=======
+    appName: 'Design Maker',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     appSubtitle: 'Professionele architectuur & demarcatie ontwerptool',
     customer: 'Klant',
     customerName: 'Klantnaam',
@@ -195,7 +199,11 @@ export const translations: Record<Language, Translations> = {
     demarcationLegend: 'Demarcatielijn (scheiding Operator domein / Klant domein)',
     demarcationLineTitle: 'DEMARCATIE',
     userGuide: 'Gebruiksaanwijzing',
+<<<<<<< HEAD
     userGuideTitle: 'Gebruiksaanwijzing SIP Design Maker',
+=======
+    userGuideTitle: 'Gebruiksaanwijzing Design Maker',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     guideIntro: 'Deze applicatie genereert automatisch professionele telecom-architectuurdiagrammen voor SIP trunking en Mediant B2BUA SBC oplossingen.',
     guideRightClickTitle: '🖱️ Objecten verplaatsen (Rechtermuisknop)',
     guideRightClickDesc: 'Klik met de RECHTER muisknop op een object (Mediant router, Gateway, SIP PBX of locatietekst) en sleep deze naar elke gewenste positie op het canvas. Alle verbindingslijnen blijven automatisch naadloos aangesloten! Gebruik de knop "Posities herstellen" om alles weer op de standaard layout te zetten.',
@@ -217,8 +225,13 @@ export const translations: Record<Language, Translations> = {
     guideB2buaDesc: 'De Mediant router fungeert als B2BUA: de bovenzijde bevindt zich in het operatornetwerk, terwijl de onderzijde direct in de Customer LAN wolk zit. De rode demarcatielijn scheidt het operator-domein van het klant-domein.',
     guideDragDropTitle: '📂 JSON Slepen & Neerzetten (Drag & Drop)',
     guideDragDropDesc: 'Sleep een eerder opgeslagen .json-bestand direct vanaf uw computer naar het ontwerpscherm om het ontwerp onmiddellijk in te laden en verder te bewerken.',
+<<<<<<< HEAD
     guideExportTitle: '💾 Exporteren, Opslaan & Openen',
     guideExportDesc: 'Klik op "Exporteer naar PNG" om een haarscherpe afbeelding van het diagram te downloaden. U kunt ontwerpen ook opslaan als .json en later openen door het bestand direct naar het scherm te slepen of via het menu. Bestandsnamen bevatten automatisch de Klantnaam en het 8-teken Projectnummer.',
+=======
+    guideExportTitle: '💾 Exporteren, Opslaan & Openen (VodafoneZiggo Logo)',
+    guideExportDesc: 'Klik op "Exporteer naar PNG" om een haarscherpe afbeelding van het diagram te downloaden. Boven in de rode titelbalk aan de rechterkant staat het officiële VodafoneZiggo logo. U kunt ontwerpen ook opslaan als .json en later openen door het bestand direct naar het scherm te slepen of via het menu. Bestandsnamen bevatten automatisch de Klantnaam en het 8-teken Projectnummer.',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     dropJsonToLoad: 'Laat het .json bestand los om te openen',
     dropJsonSubtext: 'Het netwerkontwerp wordt direct ingeladen in het scherm',
     invalidJsonError: 'Het bestand kon niet worden geopend. Zorg ervoor dat het een geldig SIP-design .json bestand is.',
@@ -277,6 +290,7 @@ export const translations: Record<Language, Translations> = {
     trunkId: 'Trunk ID',
     selectMultitenantCustomer: '-- Kies Multitenant Klant --',
     cpeCount: 'Aantal CPE\'s',
+<<<<<<< HEAD
     serviceBuilder: 'Diensten Bouwer',
     serviceBuilderDesc: 'Configureer modulaire telecom-diensten en netwerkbouwstenen',
     guideMulticustomerTitle: '🏢 Multicustomer Omgevingen',
@@ -286,6 +300,17 @@ export const translations: Record<Language, Translations> = {
   },
   en: {
     appName: 'SIP Design Maker',
+=======
+    serviceBuilder: 'Templates',
+    serviceBuilderDesc: 'Configureer modulaire telecom-templates en netwerkbouwstenen',
+    guideMulticustomerTitle: '🏢 Multicustomer Omgevingen',
+    guideMulticustomerDesc: 'Kies "Multicustomer" bij Diensttype voor gedeelde telecom-omgevingen (VOV of VOV + CN). Geef aan voor welke klant de omgeving is: Esprit (N2G), IP Voice Group Services BV (UFC), PCC Omnia (1 of 2 CPE’s) of TSG. In het ontwerp verschijnt automatisch het bijbehorende Mediant-tekstblok met instelbaar Config. Nr. of Trunk ID. Voor Esprit wordt de titel "Esprit MultiCustomer: [Klantnaam]" en bevat de architectuur automatisch Mediant 006 & 007, WAN-adressen (10.183.57.xxx & 10.183.58.xxx), LAN (10.20.0.xxx & 10.20.1.xxx in 10.20.0.0/22), een Firewall (met 10.20.2.xxx adres) en een tweede kleinere Customer LAN wolk met de PBX.',
+    guideServiceBuilderTitle: '📋 Templates & Uitvraagscenario\'s',
+    guideServiceBuilderDesc: 'Bouw eigen modulaire telecom-templates via Bestand > Templates. Voeg routers, Medianten, wolken, PBX\'en, firewalls, telefoontoestellen, connectoren en vrije tekst toe. Zodra u een element toevoegt waar IP-adressen voor nodig zijn, bouwt de module automatisch het bijbehorende uitvraagscenario op (met sowieso altijd Klantnaam, 8-teken Projectnummer en Locatie(s)). Houd Shift ingedrukt om meerdere elementen tegelijk te selecteren en gezamenlijk te verslepen. Connectoren bewegen automatisch mee met aangesloten elementen. U kunt connectoren ook in hun geheel verplaatsen, of begin- en eindpunten magnetisch aansluiten en weer vrijmaken. Zoom vloeiend in en uit met het scrollwiel van de muis. Opgeslagen templates zijn direct selecteerbaar in de dropdowns van elke locatie!',
+  },
+  en: {
+    appName: 'Design Maker',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     appSubtitle: 'Professional architecture & demarcation design tool',
     customer: 'Customer',
     customerName: 'Customer Name',
@@ -418,6 +443,7 @@ export const translations: Record<Language, Translations> = {
     trunkId: 'Trunk ID',
     selectMultitenantCustomer: '-- Select Multitenant Customer --',
     cpeCount: 'Number of CPEs',
+<<<<<<< HEAD
     serviceBuilder: 'Service Builder',
     serviceBuilderDesc: 'Configure modular telecom services and network components',
     guideMulticustomerTitle: '🏢 Multicustomer Environments',
@@ -427,6 +453,17 @@ export const translations: Record<Language, Translations> = {
   },
   fr: {
     appName: 'SIP Design Maker',
+=======
+    serviceBuilder: 'Templates',
+    serviceBuilderDesc: 'Configure modular telecom templates and network components',
+    guideMulticustomerTitle: '🏢 Multicustomer Environments',
+    guideMulticustomerDesc: 'Select "Multicustomer" under Service Type for multi-tenant environments (VOV or VOV + CN). Specify the client: Esprit (N2G), IP Voice Group Services BV (UFC), PCC Omnia (1 or 2 CPEs), or TSG. The diagram automatically displays the corresponding Multi Customer Mediant block with editable Config. Nr. or Trunk ID. For Esprit, the title becomes "Esprit MultiCustomer: [Customer Name]" and the architecture automatically configures Mediant 006 & 007, WAN IPs (10.183.57.xxx & 10.183.58.xxx), LAN IPs (10.20.0.xxx & 10.20.1.xxx in 10.20.0.0/22), a Firewall (with 10.20.2.xxx IP), and a second smaller Customer LAN cloud with the PBX.',
+    guideServiceBuilderTitle: '📋 Templates & Questionnaires',
+    guideServiceBuilderDesc: 'Build custom modular telecom templates via File > Templates. Add routers, Mediants, clouds, PBXs, firewalls, endpoints, connectors, and free text. Hold Shift to multi-select and drag groups together. Connectors automatically track and follow connected elements. You can also drag whole connectors or magnetically snap/unlink their endpoints. Smoothly zoom with the mouse scroll wheel. Saved templates are immediately available in every location\'s service dropdown!',
+  },
+  fr: {
+    appName: 'Design Maker',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     appSubtitle: 'Outil de conception d’architecture & démarcation réseau',
     customer: 'Client',
     customerName: 'Nom du client',
@@ -559,11 +596,20 @@ export const translations: Record<Language, Translations> = {
     trunkId: 'Trunk ID',
     selectMultitenantCustomer: '-- Choisir le client Multi-tenant --',
     cpeCount: 'Nombre de CPE',
+<<<<<<< HEAD
     serviceBuilder: 'Générateur de Services',
     serviceBuilderDesc: 'Configurer des services télécoms modulaires et des composants réseau',
     guideMulticustomerTitle: '🏢 Environnements Multicustomer',
     guideMulticustomerDesc: 'Sélectionnez "Multicustomer" comme type de service pour les environnements mutualisés (VOV ou VOV + CN). Indiquez le client : Esprit (N2G), IP Voice Group Services BV (UFC), PCC Omnia (1 ou 2 CPE) ou TSG. Le schéma affiche automatiquement le bloc Mediant correspondant avec le numéro de configuration ou Trunk ID modifiable. Pour Esprit, le titre devient "Esprit MultiCustomer: [Nom du client]" et l’architecture intègre automatiquement Mediant 006 & 007, les adresses WAN (10.183.57.xxx & 10.183.58.xxx), LAN (10.20.0.xxx & 10.20.1.xxx sous 10.20.0.0/22), un pare-feu (Firewall avec adresse 10.20.2.xxx) et un second nuage Customer LAN avec le PBX.',
     guideServiceBuilderTitle: '🛠️ Studio de Création de Services (Services Sur-Mesure)',
     guideServiceBuilderDesc: 'Concevez des services télécoms modulaires sur mesure via Fichier > Studio de Création de Services. Ajoutez routeurs, Mediants, nuages, PBX, pare-feux, combinés, connecteurs et zones de texte. Maintenez Maj (Shift) pour sélectionner et déplacer plusieurs éléments ensemble. Les connecteurs suivent automatiquement leurs éléments reliés. Zoomez avec la molette de la souris. Tout service enregistré devient immédiatement disponible dans les menus déroulants de chaque site !',
+=======
+    serviceBuilder: 'Modèles',
+    serviceBuilderDesc: 'Configurer et gérer des modèles télécoms modulaires et des composants réseau',
+    guideMulticustomerTitle: '🏢 Environnements Multicustomer',
+    guideMulticustomerDesc: 'Sélectionnez "Multicustomer" comme type de service pour les environnements mutualisés (VOV ou VOV + CN). Indiquez le client : Esprit (N2G), IP Voice Group Services BV (UFC), PCC Omnia (1 ou 2 CPE) ou TSG. Le schéma affiche automatiquement le bloc Mediant correspondant avec le numéro de configuration ou Trunk ID modifiable. Pour Esprit, le titre devient "Esprit MultiCustomer: [Nom du client]" et l’architecture intègre automatiquement Mediant 006 & 007, les adresses WAN (10.183.57.xxx & 10.183.58.xxx), LAN (10.20.0.xxx & 10.20.1.xxx sous 10.20.0.0/22), un pare-feu (Firewall avec adresse 10.20.2.xxx) et un second nuage Customer LAN avec le PBX.',
+    guideServiceBuilderTitle: '📋 Modèles & Questionnaires',
+    guideServiceBuilderDesc: 'Concevez des modèles télécoms modulaires via Fichier > Modèles. Ajoutez routeurs, Mediants, nuages, PBX, pare-feux, combinés, connecteurs et zones de texte. Maintenez Maj (Shift) pour sélectionner et déplacer plusieurs éléments ensemble. Les connecteurs suivent automatiquement leurs éléments reliés. Zoomez avec la molette de la souris. Tout modèle enregistré devient immédiatement disponible dans les menus déroulants de chaque site !',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   },
 };

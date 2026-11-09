@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "SIP Network Planner",
+=======
+  "name": "Design Maker",
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   "description": "Plan en exporteer SIP netwerk ontwerpen voor operator-grade diensten.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

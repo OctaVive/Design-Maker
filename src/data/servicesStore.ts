@@ -1,11 +1,21 @@
 import { CustomServiceDefinition } from '../types';
 
 export const BUILT_IN_SERVICES: CustomServiceDefinition[] = [
+<<<<<<< HEAD
   {
     id: 'builtin-vov',
     name: 'Voice over Virtual IP',
     code: 'VOV',
     description: 'Standaard SIP Voice dienst over dedicated Voice WAN & LAN met lokale PBX.',
+=======
+  // --- VOICE DIENSTEN ---
+  {
+    id: 'builtin-vov',
+    name: 'VOV',
+    code: 'VOV',
+    category: 'voice',
+    description: '',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     cpeCount: 1,
     hostnamePrefix: 'Mediant',
     hasWan: true,
@@ -27,11 +37,20 @@ export const BUILT_IN_SERVICES: CustomServiceDefinition[] = [
   },
   {
     id: 'builtin-cn',
+<<<<<<< HEAD
     name: 'Corporate Network Only',
     code: 'CN',
     description: 'Dataverbinding over Corporate Network (CN WAN & CN LAN) zonder voice.',
     cpeCount: 1,
     hostnamePrefix: 'Mediant',
+=======
+    name: 'CN',
+    code: 'CN',
+    category: 'voice',
+    description: '',
+    cpeCount: 1,
+    hostnamePrefix: 'Router',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     hasWan: false,
     hasVoiceLan: false,
     hasCn: true,
@@ -51,9 +70,16 @@ export const BUILT_IN_SERVICES: CustomServiceDefinition[] = [
   },
   {
     id: 'builtin-vov-cn',
+<<<<<<< HEAD
     name: 'Voice + Corporate Network',
     code: 'VOV + CN',
     description: 'Gecombineerde Voice en Corporate Network interfaces met ruime positionering.',
+=======
+    name: 'VOV+CN',
+    code: 'VOV+CN',
+    category: 'voice',
+    description: '',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     cpeCount: 1,
     hostnamePrefix: 'Mediant',
     hasWan: true,
@@ -75,9 +101,16 @@ export const BUILT_IN_SERVICES: CustomServiceDefinition[] = [
   },
   {
     id: 'builtin-multicustomer',
+<<<<<<< HEAD
     name: 'Esprit Multicustomer (N2G)',
     code: 'Multicustomer',
     description: 'Redundante Mediant 006 & 007, 2 Customer LAN wolken, Firewall met PBX IP zonder connectoren en Config Nr. / SRD mapping.',
+=======
+    name: 'Multicustomer Esprit',
+    code: 'Multicustomer Esprit',
+    category: 'voice',
+    description: '',
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     cpeCount: 2,
     hostnamePrefix: 'Mediant 006',
     hasWan: true,
@@ -96,6 +129,59 @@ export const BUILT_IN_SERVICES: CustomServiceDefinition[] = [
     hasDefaultGateway: false,
     hasConfigNr: true,
     isBuiltIn: true
+<<<<<<< HEAD
+=======
+  },
+  {
+    id: 'builtin-multicustomer-ip-voice-group',
+    name: 'Multicustomer IP Voice Group',
+    code: 'Multicustomer IP Voice Group',
+    category: 'voice',
+    description: '',
+    cpeCount: 2,
+    hostnamePrefix: 'UFC-M2600-ASD-006',
+    hasWan: true,
+    hasVoiceLan: true,
+    hasCn: false,
+    defaultSubnet: '255.255.252.0 (/22)',
+    hasCustomerLanCloud: true,
+    hasSecondLanCloud: true,
+    hasPhoneIcon: true,
+    hasFirewall: true,
+    firewallHasConnectors: false,
+    firewallIpRole: 'pbx',
+    allowDemarcationLine: false,
+    hasLocalPbx: false,
+    hasRoutedPbx: false,
+    hasDefaultGateway: false,
+    hasConfigNr: true,
+    isBuiltIn: true
+  },
+  {
+    id: 'builtin-multicustomer-kinwel',
+    name: 'Multicustomer Kinwel',
+    code: 'Multicustomer Kinwel',
+    category: 'voice',
+    description: '',
+    cpeCount: 2,
+    hostnamePrefix: 'DS4-M2600-ASD-002',
+    hasWan: true,
+    hasVoiceLan: true,
+    hasCn: false,
+    defaultSubnet: '255.255.254.0 (/23)',
+    hasCustomerLanCloud: true,
+    hasSecondLanCloud: true,
+    hasPhoneIcon: true,
+    hasFirewall: true,
+    firewallHasConnectors: false,
+    firewallIpRole: 'pbx',
+    allowDemarcationLine: false,
+    hasLocalPbx: false,
+    hasRoutedPbx: false,
+    hasDefaultGateway: false,
+    hasConfigNr: true,
+    isBuiltIn: true
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   }
 ];
 
@@ -147,8 +233,43 @@ export function getAllServices(): CustomServiceDefinition[] {
   return [...BUILT_IN_SERVICES, ...custom];
 }
 
+<<<<<<< HEAD
 export function findServiceDefinition(codeOrName: string): CustomServiceDefinition | undefined {
   if (!codeOrName) return undefined;
   const all = getAllServices();
   return all.find(s => s.code === codeOrName || s.name === codeOrName || s.id === codeOrName);
+=======
+export function getVoiceServices(): CustomServiceDefinition[] {
+  return getAllServices().filter(s => s.category === 'voice' || s.code === 'CN' || (!s.category && s.code !== 'DIA' && s.code !== 'IP-VPN' && s.code !== 'SD-WAN'));
+}
+
+export function getDataServices(): CustomServiceDefinition[] {
+  // Er zijn nog geen templates gemaakt voor data diensten; Corporate Net is een voice dienst.
+  // Alleen eventuele zelfgemaakte data templates (als die ooit worden aangemaakt) worden getoond.
+  return getAllServices().filter(s => s.category === 'data' && s.code !== 'CN' && s.id !== 'builtin-cn' && s.code !== 'DIA' && s.code !== 'IP-VPN' && s.code !== 'SD-WAN');
+}
+
+export function findServiceDefinition(codeOrName: string): CustomServiceDefinition | undefined {
+  if (!codeOrName) return undefined;
+  const all = getAllServices();
+  const direct = all.find(s => s.code === codeOrName || s.name === codeOrName || s.id === codeOrName);
+  if (direct) return direct;
+  // Aliases voor compatibiliteit met eerdere opgeslagen ontwerpen
+  if (codeOrName === 'VOV + CN' || codeOrName === 'VOV & CN' || codeOrName === 'VOV+CN' || (codeOrName.includes('VOV') && codeOrName.includes('CN'))) {
+    return all.find(s => s.code === 'VOV+CN' || s.code === 'VOV & CN');
+  }
+  if (codeOrName === 'Multicustomer Kinwel' || codeOrName === 'Multicustomer - Kinwel' || codeOrName.includes('Kinwel')) {
+    return all.find(s => s.code === 'Multicustomer Kinwel' || s.name === 'Multicustomer Kinwel');
+  }
+  if (codeOrName === 'Multicustomer IP Voice Group' || codeOrName === 'Multicustomer - IP Voice Group' || codeOrName.includes('IP Voice Group') || codeOrName === 'Multicustomer IP Services Group' || codeOrName.includes('IP Services Group')) {
+    return all.find(s => s.code === 'Multicustomer IP Voice Group' || s.name === 'Multicustomer IP Voice Group');
+  }
+  if (codeOrName === 'Multicustomer' || codeOrName === 'Multicustomer - Esprit' || codeOrName === 'Multicustomer Esprit' || codeOrName.startsWith('Multicustomer')) {
+    return all.find(s => s.code === 'Multicustomer Esprit' || s.code === 'Multicustomer - Esprit');
+  }
+  if (codeOrName === 'Corporate Net' || codeOrName === 'Corporate Net (CN)') {
+    return all.find(s => s.code === 'CN');
+  }
+  return undefined;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 }

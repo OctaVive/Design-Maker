@@ -1,11 +1,17 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+<<<<<<< HEAD
 import { LocationConfig } from '../types';
 import { Network, Download, RotateCcw, Save, Plus } from 'lucide-react';
+=======
+import { LocationConfig, MulticustomerClient } from '../types';
+import { Network, Download, RotateCcw, Save, Plus, Layers, Sparkles, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 import { toPng } from 'html-to-image';
 import { getCidrFromSubnetString, isValidIPv4, isInSameSubnet, getSubnetNetworkAddress, padTo3Digits } from '../utils/ip';
 import { getEspritConfigByNumber } from '../data/espritConfigs';
 import { findServiceDefinition } from '../data/servicesStore';
 import { Language, translations } from '../i18n/translations';
+<<<<<<< HEAD
 
 // Standaard IP Netwerkrouter (geen wireless antennes, 4 routing pijlen)
 function CoreRouterSvg({ width = 100, height = 40 }: { width?: number; height?: number }) {
@@ -576,6 +582,32 @@ function InlineEdit({
     </span>
   );
 }
+=======
+import { VodafoneZiggoLogo } from './VodafoneZiggoLogo';
+
+import { CoreRouterSvg, VoiceRouterSvg, PbxIcon, FirewallSvg, SbcClusterSvg } from './diagram/diagramSvgs';
+import {
+  areCpesInSameLanSubnet,
+  generateCloudPath,
+  CLOUD_Y_OFFSET,
+  getCloudTopY,
+  getCloudBottomY,
+  getBoxBorderPoint,
+  getCloudConnectionPoint,
+  getCpeExtents,
+  isCombiServiceWithCn,
+  getIpVoiceCloudBottomY,
+  getIpVoiceCloudWidthAndCenter
+} from './diagram/diagramGeometry';
+import { DiagramInlineEdit as InlineEdit } from './diagram/DiagramInlineEdit';
+import { DiagramTopBar } from './diagram/DiagramTopBar';
+import { DiagramConnectionsSvg } from './diagram/DiagramConnectionsSvg';
+import { DiagramIpVoiceCloud } from './diagram/DiagramIpVoiceCloud';
+import { DiagramMulticustomerBlock } from './diagram/DiagramMulticustomerBlock';
+import { DiagramCustomerLanCloud } from './diagram/DiagramCustomerLanCloud';
+import { DiagramCpeNode } from './diagram/DiagramCpeNode';
+import { DiagramPbxNodes } from './diagram/DiagramPbxNodes';
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
 interface Props {
   locations: LocationConfig[];
@@ -588,6 +620,11 @@ interface Props {
   onUpdateLocations?: (locations: LocationConfig[]) => void;
   onUpdateCustomerName?: (name: string) => void;
   onUpdateProjectNumber?: (num: string) => void;
+<<<<<<< HEAD
+=======
+  selectedServiceCode?: string;
+  startupCategory?: 'voice' | 'data' | null;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 }
 
 export function NetworkDiagram({ 
@@ -600,7 +637,13 @@ export function NetworkDiagram({
   language = 'nl',
   onUpdateLocations,
   onUpdateCustomerName,
+<<<<<<< HEAD
   onUpdateProjectNumber
+=======
+  onUpdateProjectNumber,
+  selectedServiceCode,
+  startupCategory
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 }: Props) {
   const t = translations[language];
   const diagramRef = useRef<HTMLDivElement>(null);
@@ -723,7 +766,11 @@ export function NetworkDiagram({
     
     const locWithCpe = locations.find(l => (l.cpes || []).some(c => c.id === cpeId));
     const targetCpe = locWithCpe?.cpes?.find(c => c.id === cpeId);
+<<<<<<< HEAD
     const isEsprit = targetCpe && (targetCpe.serviceType === 'Multicustomer' || targetCpe.isMulticustomer) && (targetCpe.multicustomerClient === 'Esprit' || locWithCpe?.multicustomerClient === 'Esprit');
+=======
+    const isEsprit = Boolean(targetCpe && (targetCpe.serviceType === 'Multicustomer' || targetCpe.isMulticustomer || targetCpe.serviceType?.startsWith('Multicustomer') || targetCpe.multicustomerClient || locWithCpe?.multicustomerClient || locWithCpe?.isMulticustomer));
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
     if (isEsprit && field === 'wanIp') {
       const match = value.trim().match(/\.(\d{1,3})$/);
@@ -811,6 +858,7 @@ export function NetworkDiagram({
     if (!onUpdateLocations) return;
     const cleanVal = val.trim();
     const updated = locations.map(loc => {
+<<<<<<< HEAD
       const locHasMulti = loc.isMulticustomer || (loc.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.isMulticustomer);
       if (!locHasMulti) return loc;
 
@@ -832,6 +880,46 @@ export function NetworkDiagram({
                 wanIp: medData.wanIp,
                 lanIpCpe: medData.lanIp,
                 lanSubnet: '255.255.252.0 (/22)',
+=======
+      const locHasMulti = loc.isMulticustomer || (loc.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.serviceType === 'Multicustomer Esprit' || c.serviceType === 'Multicustomer - Esprit' || c.serviceType?.startsWith('Multicustomer') || c.isMulticustomer);
+      if (!locHasMulti) return loc;
+
+      const isKinwel = (
+        loc.multicustomerClient === 'Kinwel' || 
+        (loc.cpes || []).some(c => c.multicustomerClient === 'Kinwel' || c.serviceType?.includes('Kinwel'))
+      );
+      const isIpVoice = !isKinwel && (
+        loc.multicustomerClient === 'IP Voice Group' || 
+        loc.multicustomerClient === 'IP Services Group' || 
+        (loc.cpes || []).some(c => c.multicustomerClient === 'IP Voice Group' || c.multicustomerClient === 'IP Services Group' || c.serviceType?.includes('IP Voice') || c.serviceType?.includes('IP Services'))
+      );
+
+      const clientName: MulticustomerClient = isKinwel ? 'Kinwel' : (isIpVoice ? 'IP Voice Group' : 'Esprit');
+
+      if (field === 'multicustomerConfigNr') {
+        const espritCfg = getEspritConfigByNumber(cleanVal, clientName);
+        const cfg3 = espritCfg.configNr;
+        const defaultSubnet = clientName === 'Kinwel' ? '255.255.254.0 (/23)' : '255.255.252.0 (/22)';
+        return {
+          ...loc,
+          multicustomerClient: clientName,
+          multicustomerConfigNr: cfg3,
+          cpes: (loc.cpes || []).map((cpe, idx) => {
+            if (cpe.serviceType === 'Multicustomer' || cpe.serviceType === 'Multicustomer Esprit' || cpe.serviceType === 'Multicustomer - Esprit' || cpe.serviceType === 'Multicustomer IP Voice Group' || cpe.serviceType === 'Multicustomer Kinwel' || cpe.serviceType?.startsWith('Multicustomer') || cpe.isMulticustomer) {
+              const is006 = idx === 0 || cpe.hostname.includes('006') || cpe.hostname.includes('ASD-006') || cpe.hostname.includes('ASD-002');
+              const medData = is006 ? espritCfg.mediant006 : espritCfg.mediant007;
+              const hostname = is006 
+                ? (espritCfg.hostname006 || (clientName === 'Kinwel' ? 'DS4-M2600-ASD-002' : (clientName === 'IP Voice Group' ? 'UFC-M2600-ASD-006' : 'Mediant 006')))
+                : (espritCfg.hostname007 || (clientName === 'Kinwel' ? 'DS4-M2600-ASD-005' : (clientName === 'IP Voice Group' ? 'UFC-M2600-ASD-002' : 'Mediant 007')));
+              return {
+                ...cpe,
+                hostname,
+                multicustomerClient: clientName,
+                multicustomerConfigNr: cfg3,
+                wanIp: medData.wanIp,
+                lanIpCpe: medData.lanIp,
+                lanSubnet: defaultSubnet,
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                 defaultGateway: espritCfg.sipLanIpGw,
                 ...(is006 ? {
                   pbxs: [{
@@ -848,8 +936,11 @@ export function NetworkDiagram({
         };
       }
 
+<<<<<<< HEAD
       const cfg3 = field === 'multicustomerConfigNr' ? (padTo3Digits(cleanVal) || '001') : (loc.multicustomerConfigNr || '001');
 
+=======
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
       return {
         ...loc,
         [field]: cleanVal,
@@ -984,6 +1075,7 @@ export function NetworkDiagram({
   // Multicustomer info uitvragen over alle locaties/cpes
   const multicustomerInfo = (() => {
     for (const loc of locations) {
+<<<<<<< HEAD
       if (loc.isMulticustomer && loc.multicustomerClient) {
         return {
           client: loc.multicustomerClient,
@@ -1001,6 +1093,57 @@ export function NetworkDiagram({
           trunkId: cpe.multicustomerTrunkId || 'xxx',
           cpeCount: cpe.multicustomerCpeCount || (loc.cpes.length >= 2 ? 2 : 1),
           cpeId: cpe.id,
+=======
+      const allCpes = loc.cpes || [];
+      const hasKinwelCpe = allCpes.some(c => 
+        c.serviceType === 'Multicustomer Kinwel' || 
+        c.serviceType === 'Multicustomer - Kinwel' ||
+        c.serviceType?.includes('Kinwel') ||
+        c.multicustomerClient === 'Kinwel'
+      );
+      const hasIpVoiceCpe = allCpes.some(c => 
+        c.serviceType === 'Multicustomer IP Voice Group' || 
+        c.serviceType === 'Multicustomer - IP Voice Group' ||
+        c.serviceType?.includes('IP Voice Group') ||
+        c.serviceType?.includes('IP Services Group') ||
+        c.multicustomerClient === 'IP Voice Group' ||
+        c.multicustomerClient === 'IP Services Group'
+      );
+
+      const cpe = allCpes.find(c => 
+        c.serviceType === 'Multicustomer' || 
+        c.serviceType === 'Multicustomer - Esprit' || 
+        c.serviceType === 'Multicustomer Esprit' || 
+        c.serviceType === 'Multicustomer IP Voice Group' || 
+        c.serviceType === 'Multicustomer - IP Voice Group' || 
+        c.serviceType === 'Multicustomer IP Services Group' || 
+        c.serviceType === 'Multicustomer - IP Services Group' || 
+        c.serviceType === 'Multicustomer Kinwel' || 
+        c.serviceType === 'Multicustomer - Kinwel' || 
+        c.serviceType?.startsWith('Multicustomer') || 
+        c.isMulticustomer || 
+        c.multicustomerClient
+      );
+
+      if (loc.isMulticustomer || cpe) {
+        let client: MulticustomerClient = 'Esprit';
+        if (hasKinwelCpe || loc.multicustomerClient === 'Kinwel' || cpe?.multicustomerClient === 'Kinwel') {
+          client = 'Kinwel';
+        } else if (hasIpVoiceCpe || loc.multicustomerClient === 'IP Voice Group' || loc.multicustomerClient === 'IP Services Group' || cpe?.multicustomerClient === 'IP Voice Group' || cpe?.multicustomerClient === 'IP Services Group') {
+          client = 'IP Voice Group';
+        } else if (cpe?.multicustomerClient) {
+          client = cpe.multicustomerClient;
+        } else if (loc.multicustomerClient) {
+          client = loc.multicustomerClient;
+        }
+
+        return {
+          client,
+          configNr: cpe?.multicustomerConfigNr || loc.multicustomerConfigNr || '001',
+          trunkId: cpe?.multicustomerTrunkId || loc.multicustomerTrunkId || 'xxx',
+          cpeCount: cpe?.multicustomerCpeCount || (allCpes.length >= 2 ? 2 : 1),
+          cpeId: cpe?.id,
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
           locId: loc.id
         };
       }
@@ -1008,14 +1151,51 @@ export function NetworkDiagram({
     return null;
   })();
 
+<<<<<<< HEAD
   const isEspritMulti = multicustomerInfo?.client === 'Esprit';
 
   // Verzamel alle unieke individuele diensten (elke dienst mag maar 1x voorkomen in de titel)
+=======
+  const isEspritMulti = Boolean(multicustomerInfo) || locations.some(loc => 
+    loc.isMulticustomer || 
+    loc.multicustomerClient === 'Esprit' || 
+    loc.multicustomerClient === 'IP Voice Group' || 
+    loc.multicustomerClient === 'IP Services Group' || 
+    loc.multicustomerClient === 'Kinwel' || 
+    (loc.cpes || []).some(c => 
+      c.isMulticustomer ||
+      c.multicustomerClient === 'Esprit' || 
+      c.multicustomerClient === 'IP Voice Group' || 
+      c.multicustomerClient === 'IP Services Group' || 
+      c.multicustomerClient === 'Kinwel' || 
+      c.serviceType === 'Multicustomer Esprit' || 
+      c.serviceType === 'Multicustomer - Esprit' ||
+      c.serviceType === 'Multicustomer IP Voice Group' ||
+      c.serviceType === 'Multicustomer - IP Voice Group' ||
+      c.serviceType === 'Multicustomer IP Services Group' ||
+      c.serviceType === 'Multicustomer - IP Services Group' ||
+      c.serviceType === 'Multicustomer Kinwel' ||
+      c.serviceType === 'Multicustomer - Kinwel' ||
+      c.serviceType?.startsWith('Multicustomer')
+    )
+  );
+
+  const isMultiAny = Boolean(multicustomerInfo) || isEspritMulti || locations.some(loc => 
+    loc.isMulticustomer || (loc.cpes || []).some(c => 
+      c.serviceType === 'Multicustomer' || 
+      c.serviceType === 'Multicustomer - Esprit' || 
+      c.serviceType === 'Multicustomer Esprit' || 
+      c.serviceType?.startsWith('Multicustomer') || 
+      c.isMulticustomer
+    )
+  );
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   const allServices = Array.from(
     new Set(
       locations
         .flatMap(loc => loc.cpes || [])
         .map(c => c.serviceType)
+<<<<<<< HEAD
         .filter((s): s is NonNullable<typeof s> => Boolean(s && s.trim() && s !== 'Multicustomer' && !s.startsWith('Multicustomer')))
         .flatMap(s => s.split('+').map(item => item.trim()))
         .filter(s => Boolean(s && s !== 'Multicustomer'))
@@ -1025,6 +1205,15 @@ export function NetworkDiagram({
 
   // Titel in de rode bovenbalk: "SIP Design" blijft standaard staan,
   // Voor Esprit Multicustomer wordt de titel conform verzoek: "Esprit  MultiCustomer: " + klantnaam
+=======
+        .filter((s): s is NonNullable<typeof s> => Boolean(s && s.trim() && s !== 'Multicustomer' && s !== 'Multicustomer - Esprit' && !s.startsWith('Multicustomer')))
+        .flatMap(s => s.split(/[+&]/).map(item => item.trim()))
+        .filter(s => Boolean(s && s !== 'Multicustomer' && s !== 'Multicustomer - Esprit'))
+    )
+  );
+  const servicesText = allServices.join(' & ');
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   const customerParts: string[] = [];
   if (effectiveCustomerName.trim()) {
     customerParts.push(effectiveCustomerName.trim());
@@ -1033,11 +1222,36 @@ export function NetworkDiagram({
     customerParts.push(effectiveProjectNumber.trim());
   }
 
+<<<<<<< HEAD
   const headerTitle = isEspritMulti
     ? `Esprit MultiCustomer: ${effectiveCustomerName.trim()}${effectiveProjectNumber.trim() ? ` - ${effectiveProjectNumber.trim()}` : ''}`
     : (customerParts.length > 0
         ? `SIP Design - ${customerParts.join(' - ')}`
         : 'SIP Design');
+=======
+  const activeClientName = multicustomerInfo?.client || (
+    locations.some(l => l.multicustomerClient === 'Kinwel' || (l.cpes || []).some(c => c.serviceType?.includes('Kinwel') || c.multicustomerClient === 'Kinwel')) ? 'Kinwel' : (
+      locations.some(l => l.multicustomerClient === 'IP Services Group' || (l.cpes || []).some(c => c.serviceType?.includes('IP Services Group') || c.multicustomerClient === 'IP Services Group')) ? 'IP Services Group' : 'Esprit'
+    )
+  );
+
+  const activeCategory = startupCategory || (selectedServiceCode ? findServiceDefinition(selectedServiceCode)?.category : null);
+
+  const isDataService = activeCategory === 'data' || (
+    locations.length > 0 && locations.every(loc => 
+      (loc.cpes || []).length > 0 && (loc.cpes || []).every(cpe => {
+        const def = findServiceDefinition(cpe.serviceType);
+        return def?.category === 'data';
+      })
+    )
+  );
+
+  const headerTitle = isEspritMulti
+    ? `${activeClientName} MultiCustomer: ${effectiveCustomerName.trim()}${effectiveProjectNumber.trim() ? ` - ${effectiveProjectNumber.trim()}` : ''}`
+    : (customerParts.length > 0
+        ? `${isDataService ? 'Design' : 'SIP Design'} - ${customerParts.join(' - ')}`
+        : (isDataService ? 'Design' : 'SIP Design'));
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
   const handleExportPNG = useCallback(async () => {
     if (!diagramRef.current) return;
@@ -1062,7 +1276,11 @@ export function NetworkDiagram({
         parts.push(effectiveCustomerName.trim());
       }
       if (effectiveProjectNumber.trim()) parts.push(effectiveProjectNumber.trim());
+<<<<<<< HEAD
       if (parts.length === 0) parts.push('SIP-Design');
+=======
+      if (parts.length === 0) parts.push('Design-Maker');
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
       const safeTitle = parts.join('_').replace(/[\s/\\:]+/g, '_');
       link.download = `${safeTitle}.png`;
@@ -1083,6 +1301,7 @@ export function NetworkDiagram({
   
   const totalCpes = locations.reduce((sum, loc) => sum + (loc.cpes?.length || 0), 0);
   const hasContent = Boolean(effectiveCustomerName.trim()) || totalCpes > 0;
+<<<<<<< HEAD
   const isMultiAny = Boolean(multicustomerInfo) || isEspritMulti || locations.some(loc => loc.isMulticustomer || (loc.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.isMulticustomer));
   const hasAnyDemarcation = !isMultiAny && locations.some(loc => Boolean(loc.showDemarcationLine));
   const hasAnyVovCn = locations.some(loc => loc.cpes?.some(c => c.serviceType === 'VOV + CN' || Boolean(findServiceDefinition(c.serviceType)?.hasCn) || (c.serviceType === 'Multicustomer' && c.multicustomerVariant === 'VOV + CN')));
@@ -1096,6 +1315,25 @@ export function NetworkDiagram({
   const estimatedGroupWidths = locations.map(loc => {
     const cpes = loc.cpes || [];
     if (cpes.length === 0) return 400;
+=======
+  const hasAnyDemarcation = locations.some(loc => {
+    const isLocMulti = isMultiAny || loc.isMulticustomer || (loc.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.serviceType === 'Multicustomer - Esprit' || c.serviceType === 'Multicustomer Esprit' || c.serviceType?.startsWith('Multicustomer') || c.isMulticustomer);
+    return isLocMulti ? false : Boolean(loc.showDemarcationLine);
+  });
+  const hasAnyVovCn = locations.some(loc => loc.cpes?.some(c => isCombiServiceWithCn(c.serviceType, c.multicustomerVariant)));
+  const shouldStagger = locations.length > 4;
+  const numTiers = locations.length > 8 ? 4 : (locations.length > 4 ? 2 : 1);
+  
+  // Als VOV & CN geselecteerd is, plaats de CPE's ruimer zodat beide WAN/LAN reeksen perfect leesbaar zijn en elkaar nooit overlappen
+  const CPE_SPACING = hasAnyVovCn ? 600 : 360;
+  const baseStartX = numTiers > 1 ? 120 : 80;
+
+  // Bereken natuurlijke breedtes per locatie op basis van dynamische CPE afmetingen
+  const locationGap = locations.length > 8 ? 20 : (locations.length > 4 ? 30 : 80);
+  const estimatedGroupWidths = locations.map(loc => {
+    const cpes = loc.cpes || [];
+    if (cpes.length === 0) return 300;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     let locWidth = 0;
     cpes.forEach((cpe, idx) => {
       const ext = getCpeExtents(cpe);
@@ -1103,6 +1341,7 @@ export function NetworkDiagram({
         locWidth += ext.leftExtent + 20;
       } else {
         const prevExt = getCpeExtents(cpes[idx - 1]);
+<<<<<<< HEAD
         locWidth += prevExt.rightExtent + ext.leftExtent + 60;
       }
     });
@@ -1111,6 +1350,16 @@ export function NetworkDiagram({
     return Math.max(500, locWidth);
   });
   const totalLocationsWidth = estimatedGroupWidths.reduce((a, b) => a + b, 0) + Math.max(0, locations.length - 1) * 100;
+=======
+        locWidth += prevExt.rightExtent + ext.leftExtent + (shouldStagger ? 50 : 80);
+      }
+    });
+    const lastExt = getCpeExtents(cpes[cpes.length - 1]);
+    locWidth += lastExt.rightExtent + 40;
+    return Math.max(locations.length > 8 ? 260 : (shouldStagger ? 320 : 500), locWidth);
+  });
+  const totalLocationsWidth = estimatedGroupWidths.reduce((a, b) => a + b, 0) + Math.max(0, locations.length - 1) * locationGap;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   const rawContentWidth = baseStartX + Math.max(700, totalLocationsWidth) + baseStartX;
   
   const customCloudHeights = Object.entries(customSizes)
@@ -1119,8 +1368,14 @@ export function NetworkDiagram({
   const maxCustomCloudHeight = customCloudHeights.length > 0 ? Math.max(160, ...customCloudHeights) : 160;
   const extraCloudHeight = Math.max(0, maxCustomCloudHeight - 160);
 
+<<<<<<< HEAD
   const minWidth = Math.max(1200, rawContentWidth);
   const minDiagramHeight = (shouldStagger ? 1300 : 1000) + extraCloudHeight * 1.5 + (isEspritMulti ? 180 : 0);
+=======
+  const STAGGER_OFFSET = 220;
+  const minWidth = Math.max(1200, rawContentWidth);
+  const minDiagramHeight = 1000 + (numTiers - 1) * STAGGER_OFFSET + extraCloudHeight * 1.5 + (isEspritMulti ? 180 : 0);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   const topBarHeight = 60;
   const minTotalHeight = minDiagramHeight + topBarHeight;
   
@@ -1141,9 +1396,14 @@ export function NetworkDiagram({
   const extraHeight = Math.max(0, CONTAINER_HEIGHT - minDiagramHeight);
   
   const CORE_Y = 100 + extraHeight * 0.1;
+<<<<<<< HEAD
   const ROUTER_Y = 220 + extraHeight * 0.25;
   const CPE_Y = 460 + extraHeight * 0.55;
   const STAGGER_OFFSET = shouldStagger ? (280 + extraHeight * 0.35) : 0;
+=======
+  const ROUTER_Y = CORE_Y + 118;
+  const CPE_Y = 290 + extraHeight * 0.2;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   
   const LAN_Y_OFFSET = 95 + extraHeight * 0.02;
   const GW_Y_OFFSET = 120 + extraHeight * 0.05;
@@ -1156,8 +1416,15 @@ export function NetworkDiagram({
   
   const groups = locations.map((loc, groupIdx) => {
     const locName = (loc.locationName || '').trim();
+<<<<<<< HEAD
     const isLocMulti = isMultiAny || loc.isMulticustomer || (loc.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.isMulticustomer);
     const showDemarcationLine = !isLocMulti && Boolean(loc.showDemarcationLine);
+=======
+    const isLocMulti = isMultiAny || loc.isMulticustomer || (loc.cpes || []).some(c => c.serviceType === 'Multicustomer' || c.serviceType === 'Multicustomer - Esprit' || c.serviceType === 'Multicustomer Esprit' || c.serviceType?.startsWith('Multicustomer') || c.isMulticustomer);
+    const showDemarcationLine = isLocMulti 
+      ? false 
+      : Boolean(loc.showDemarcationLine);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     const cpes = loc.cpes;
     
     // Determine LAN subnet clusters for CPEs in this location
@@ -1203,8 +1470,13 @@ export function NetworkDiagram({
           cpeRelXList.push(currentRel);
         } else {
           const prevExt = getCpeExtents(clusterCpeItems[idx - 1]);
+<<<<<<< HEAD
           // Afstand tussen CPE's = rechterbereik van vorige + linkerbereik van huidige + 60px marge
           const spacing = prevExt.rightExtent + ext.leftExtent + 60;
+=======
+          // Afstand tussen CPE's = rechterbereik van vorige + linkerbereik van huidige + 90px marge
+          const spacing = prevExt.rightExtent + ext.leftExtent + 90;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
           currentRel += spacing;
           cpeRelXList.push(currentRel);
         }
@@ -1212,8 +1484,13 @@ export function NetworkDiagram({
 
       const lastExt = getCpeExtents(clusterCpeItems[k - 1]);
       const clusterWidth = currentRel + lastExt.rightExtent + 40;
+<<<<<<< HEAD
       const yOffset = shouldStagger ? (globalCpeIndex % 2) * STAGGER_OFFSET : 0;
       globalCpeIndex++;
+=======
+      const tierIndex = groupIdx % numTiers;
+      const yOffset = tierIndex * STAGGER_OFFSET;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
       const startX = clusterCurrentX;
       clusterCurrentX += clusterWidth + 100; // 100px tussen verschillende clusters
@@ -1229,7 +1506,11 @@ export function NetworkDiagram({
     }
 
     const groupWidth = clusterCurrentX - groupStartX;
+<<<<<<< HEAD
     currentX = clusterCurrentX + 80; // 80px tussen verschillende locaties
+=======
+    currentX = clusterCurrentX + locationGap; // 35px bij stagger (>4 locaties), 80px normaal
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     
     const mappedCpes = cpes.map((cpe) => {
       const clusterId = cpeClusterMap.get(cpe.id) ?? 0;
@@ -1307,8 +1588,13 @@ export function NetworkDiagram({
         });
       }
 
+<<<<<<< HEAD
       const isVovCn = cpe.serviceType === 'VOV + CN' || Boolean(findServiceDefinition(cpe.serviceType)?.hasCn) || (cpe.serviceType === 'Multicustomer' && cpe.multicustomerVariant === 'VOV + CN');
       const isEsprit = (cpe.serviceType === 'Multicustomer' || cpe.isMulticustomer) && (cpe.multicustomerClient === 'Esprit' || loc.multicustomerClient === 'Esprit');
+=======
+      const isVovCn = isCombiServiceWithCn(cpe.serviceType, cpe.multicustomerVariant);
+      const isEsprit = Boolean(cpe.isMulticustomer || loc.isMulticustomer || cpe.serviceType === 'Multicustomer' || cpe.serviceType === 'Multicustomer - Esprit' || cpe.serviceType === 'Multicustomer Esprit' || cpe.serviceType === 'Multicustomer IP Services Group' || cpe.serviceType?.startsWith('Multicustomer') || cpe.multicustomerClient || loc.multicustomerClient);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
       const hasGw = !isEsprit && (Boolean(cpe.defaultGateway && cpe.defaultGateway.trim()) || routedPbxs.length > 0);
       
       // Gateway basispositie gekoppeld aan cpeX, beweegt mee met de cluster maar kan ook individueel versleept worden
@@ -1382,6 +1668,10 @@ export function NetworkDiagram({
       yOffset: number;
       isMulti: boolean;
       isEsprit?: boolean;
+<<<<<<< HEAD
+=======
+      clientName?: MulticustomerClient;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
       configNr3?: string;
     }[] = [];
 
@@ -1406,6 +1696,7 @@ export function NetworkDiagram({
       const isMulti = clusterCpes.length > 1;
       
       const isEspritCluster = clusterCpes.some(c => 
+<<<<<<< HEAD
         (c.serviceType === 'Multicustomer' || c.isMulticustomer) &&
         (c.multicustomerClient === 'Esprit' || loc.multicustomerClient === 'Esprit')
       );
@@ -1421,6 +1712,27 @@ export function NetworkDiagram({
       const width = customCloud?.width || defaultWidth;
       const height = customCloud?.height || 160;
       const centerX = (cloudLeft + cloudRight) / 2;
+=======
+        Boolean(c.isMulticustomer || loc.isMulticustomer || c.serviceType === 'Multicustomer' || c.serviceType === 'Multicustomer - Esprit' || c.serviceType === 'Multicustomer Esprit' || c.serviceType === 'Multicustomer IP Services Group' || c.serviceType?.startsWith('Multicustomer') || c.multicustomerClient || loc.multicustomerClient)
+      );
+
+      const firstCpe = clusterCpes[0];
+      const firstExt = getCpeExtents(firstCpe);
+      const lastCpe = clusterCpes[clusterCpes.length - 1];
+      const lastExt = getCpeExtents(lastCpe);
+
+      // Centratie van de wolk: ALTIJD exact symmetrisch en loodrecht onder de CPE(s)
+      const cpeMidX = (minX + maxX) / 2;
+      const centerX = cpeMidX;
+      const halfSpan = (maxX - minX) / 2;
+      const maxExt = Math.max(firstExt.leftExtent, lastExt.rightExtent, 120);
+      const defaultWidth = isEspritCluster 
+        ? Math.max(280, (halfSpan + 100) * 2) 
+        : Math.max(280, (halfSpan + 100) * 2);
+      const customCloud = customSizes[cloudId];
+      const width = customCloud?.width || defaultWidth;
+      const height = customCloud?.height || 115;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
       const configNr3 = isEspritCluster
         ? padTo3Digits(clusterCpes.find(c => c.multicustomerConfigNr)?.multicustomerConfigNr || loc.multicustomerConfigNr || '001')
         : undefined;
@@ -1431,8 +1743,18 @@ export function NetworkDiagram({
       });
 
       let subnetLabel = clusterCpes[0]?.lanSubnet || 'xxx.xxx.xxx.0/24';
+<<<<<<< HEAD
       if (isEspritCluster) {
         subnetLabel = '10.20.0.0/22';
+=======
+      const clusterClient: MulticustomerClient = (
+        clusterCpes.find(c => c.multicustomerClient)?.multicustomerClient || 
+        loc.multicustomerClient || 
+        (clusterCpes.some(c => c.serviceType?.includes('Kinwel')) ? 'Kinwel' : (clusterCpes.some(c => c.serviceType?.includes('IP Voice') || c.serviceType?.includes('IP Services')) ? 'IP Voice Group' : 'Esprit'))
+      );
+      if (isEspritCluster) {
+        subnetLabel = (clusterClient === 'Kinwel') ? '10.231.250.0/23' : ((clusterClient === 'IP Voice Group' || clusterClient === 'IP Services Group') ? '10.69.68.0/22' : '10.20.0.0/22');
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
       } else if (firstWithValidIp) {
         const ip = (firstWithValidIp.serviceType === 'CN' && firstWithValidIp.cnLanIp) ? firstWithValidIp.cnLanIp : firstWithValidIp.lanIpCpe;
         const cidr = getCidrFromSubnetString(firstWithValidIp.lanSubnet);
@@ -1454,10 +1776,15 @@ export function NetworkDiagram({
         yOffset: clusterCloudYOffset,
         isMulti,
         isEsprit: isEspritCluster,
+<<<<<<< HEAD
+=======
+        clientName: isEspritCluster ? clusterClient : undefined,
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
         configNr3
       });
     }
 
+<<<<<<< HEAD
     // SLUIT ALLE CPE's PERMANENT EN EXACT AAN OP DE BOVENRAND VAN DE WOLK
     mappedCpes.forEach(cpe => {
       const cluster = lanClusters.find(cl => cl.id === `loc-${loc.id || groupIdx}-cluster-${cpe.clusterId}`);
@@ -1471,6 +1798,30 @@ export function NetworkDiagram({
         // De Mediant is cpeHeight px hoog. De onderzijde rust exact 5px in de wolkboog (geen kier!)
         const exactCpeTopY = cloudBorderY - (cpeHeight - 5);
         cpe.yOffset = exactCpeTopY - CPE_Y;
+=======
+    // ALLE CPE's OP DEZE LOCATIE OP DE EXACT GELIJKE HOOGTE (ZODAT DEMARCATIELIJN PERFEKT RECHT DOORLOPENDE IS)
+    const baseCluster = lanClusters[0];
+    const commonCloudTopY = baseCluster 
+      ? getCloudTopY(baseCluster, baseCluster.centerX, CPE_Y) 
+      : CPE_Y + 15;
+    const commonCpeHeight = 40;
+    // Onderzijde Mediant (hoogte 40) sluit naadloos en zonder gap aan op de bovenrand van de Customer LAN wolk
+    const exactTopY = commonCloudTopY - (commonCpeHeight - 2);
+    const locationCommonYOffset = exactTopY - CPE_Y;
+
+    for (let cId = 0; cId < nextClusterId; cId++) {
+      const cluster = lanClusters.find(cl => cl.id === `loc-${loc.id || groupIdx}-cluster-${cId}`);
+      const clusterCpes = mappedCpes.filter(c => c.clusterId === cId);
+      if (!cluster || clusterCpes.length === 0) continue;
+
+      clusterCpes.forEach(cpe => {
+        const cpeKey = `cpe-${cpe.id}`;
+        const cpeScale = customSizes[cpeKey]?.scale || 1;
+        const manualOffset = customOffsets[`cpe-${cpe.id}`]?.y || 0;
+        
+        // Alle apparaten hebben exact dezelfde hoogte zodat de demarcatielijn er strak en recht doorheen loopt
+        cpe.yOffset = locationCommonYOffset + manualOffset;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
         // Synchroniseer Gateway en PBX Y-posities direct met de onderzijde van de wolk
         const LOCAL_PBX_GAP = 28;
@@ -1481,29 +1832,45 @@ export function NetworkDiagram({
           const cloudBottom = getCloudBottomY(cluster, pbx.x, CPE_Y);
 
           if (isEspritCluster) {
+<<<<<<< HEAD
             // Esprit architectuur:
             // 1. Firewall (hoogte 40) op cloudBottom + 35
             // 2. Kleinere Customer LAN wolk (hoogte 75) op cloudBottom + 35 + 40 + 30 = cloudBottom + 105
             // 3. PBX daaraan vast op kleine wolk onderzijde + 25
+=======
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
             const smallCloudBottom = cloudBottom + 105 + 75;
             pbx.y = smallCloudBottom + 25 + pbxOffset.y;
             pbx.x = cluster.centerX + pbxOffset.x + (pbxIdx * 130 - (cpe.mappedLocalPbxs.length - 1) * 65);
           } else {
+<<<<<<< HEAD
             // Voldoende ruimte tussen de onderrand van de wolk en het SIP Endpoint icoon (met nette verbindingslijn)
             pbx.y = cloudBottom + LOCAL_PBX_GAP + pbxOffset.y;
           }
         });
+=======
+            pbx.y = cloudBottom + LOCAL_PBX_GAP + pbxOffset.y;
+          }
+        });
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
         const dummyOffset = customOffsets[`pbx-dummy-${cpe.id}`] || { x: 0, y: 0 };
         const dummyCloudBottom = getCloudBottomY(cluster, cpe.dummyLocalX, CPE_Y);
         cpe.dummyLocalY = isEspritCluster
           ? (dummyCloudBottom + 105 + 75 + 25 + dummyOffset.y)
           : (dummyCloudBottom + LOCAL_PBX_GAP + dummyOffset.y);
 
+<<<<<<< HEAD
         // Bepaal de onderrand van de wolk op de horizontale x-positie van de Default Gateway
         const gwCloudBottom = getCloudBottomY(cluster, cpe.gatewayCenterX, CPE_Y);
         const gwOffset = customOffsets[`gw-${cpe.id}`] || { x: 0, y: 0 };
         const GW_GAP = 28;
         // Gateway bevindt zich netjes onder de rand van de wolk, exact zoals de lokale PBX, en volgt schaalwijzigingen van de wolk
+=======
+        const gwCloudBottom = getCloudBottomY(cluster, cpe.gatewayCenterX, CPE_Y);
+        const gwOffset = customOffsets[`gw-${cpe.id}`] || { x: 0, y: 0 };
+        const GW_GAP = 28;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
         cpe.gwY = gwCloudBottom + GW_GAP + gwOffset.y;
 
         cpe.mappedRoutedPbxs.forEach((pbx: any) => {
@@ -1511,8 +1878,13 @@ export function NetworkDiagram({
           // Gerouteerde PBX'en hangen direct onder de Default Gateway
           pbx.y = cpe.gwY + 70 + routedOffset.y;
         });
+<<<<<<< HEAD
       }
     });
+=======
+      });
+    }
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     
     const routerOffset = customOffsets[`router-${loc.id || groupIdx}`] || { x: 0, y: 0 };
     const routerKey = `router-${loc.id || groupIdx}`;
@@ -1530,6 +1902,11 @@ export function NetworkDiagram({
     return { locId: loc.id || `loc-${groupIdx}`, groupIdx, locName, showDemarcationLine, cpes: mappedCpes, lanClusters, groupStartX, groupWidth, routerX, routerYOffset, routerScale, routerWidth, routerHeight };
   });
 
+<<<<<<< HEAD
+=======
+  const { cloudW: ipVoiceCloudW, cloudCenterX: ipVoiceCloudCenterX } = getIpVoiceCloudWidthAndCenter(groups, TOTAL_WIDTH);
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
   // Pan and Zoom State
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
@@ -1565,8 +1942,16 @@ export function NetworkDiagram({
     autoFitRef.current = autoFitDiagram;
   }, [autoFitDiagram]);
 
+<<<<<<< HEAD
   // Initial and Resize Auto-fit with ResizeObserver and window resize listener
   useEffect(() => {
+=======
+  const hasActiveSelection = Boolean(startupCategory) || Boolean(selectedServiceCode) || locations.length > 0;
+
+  // Initial and Resize Auto-fit with ResizeObserver and window resize listener
+  useEffect(() => {
+    if (!hasActiveSelection) return;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     const container = containerRef.current;
     if (!container) return;
 
@@ -1591,6 +1976,7 @@ export function NetworkDiagram({
       ro.disconnect();
       window.removeEventListener('resize', handleWindowResize);
     };
+<<<<<<< HEAD
   }, [autoFitDiagram]);
 
   // Automatically auto-fit when locations or CPEs change (unless user manually panned/zoomed)
@@ -1602,6 +1988,20 @@ export function NetworkDiagram({
 
   // Handle Wheel Zoom
   useEffect(() => {
+=======
+  }, [autoFitDiagram, hasActiveSelection]);
+
+  // Automatically auto-fit when locations or CPEs change (unless user manually panned/zoomed)
+  useEffect(() => {
+    if (!hasUserInteracted.current && hasActiveSelection) {
+      autoFitDiagram(true);
+    }
+  }, [locations, totalCpes, autoFitDiagram, hasActiveSelection]);
+
+  // Handle Wheel Zoom (Re-attach listener when canvas container mounts)
+  useEffect(() => {
+    if (!hasActiveSelection) return;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     const container = containerRef.current;
     if (!container) return;
 
@@ -1629,11 +2029,62 @@ export function NetworkDiagram({
 
     container.addEventListener('wheel', handleWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleWheel);
+<<<<<<< HEAD
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     // Avoid dragging if clicking buttons
     if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+=======
+  }, [hasActiveSelection]);
+
+  const handleZoomIn = () => {
+    hasUserInteracted.current = true;
+    const currentScale = scaleRef.current;
+    const newScale = Math.min(5, Number((currentScale * 1.25).toFixed(2)));
+    const container = containerRef.current;
+    if (!container) {
+      setScale(newScale);
+      return;
+    }
+    const rect = container.getBoundingClientRect();
+    const mouseX = rect.width / 2;
+    const mouseY = rect.height / 2;
+    const { x, y } = positionRef.current;
+    const newX = mouseX - (mouseX - x) * (newScale / currentScale);
+    const newY = mouseY - (mouseY - y) * (newScale / currentScale);
+    setScale(newScale);
+    setPosition({ x: newX, y: newY });
+  };
+
+  const handleZoomOut = () => {
+    hasUserInteracted.current = true;
+    const currentScale = scaleRef.current;
+    const newScale = Math.max(0.1, Number((currentScale / 1.25).toFixed(2)));
+    const container = containerRef.current;
+    if (!container) {
+      setScale(newScale);
+      return;
+    }
+    const rect = container.getBoundingClientRect();
+    const mouseX = rect.width / 2;
+    const mouseY = rect.height / 2;
+    const { x, y } = positionRef.current;
+    const newX = mouseX - (mouseX - x) * (newScale / currentScale);
+    const newY = mouseY - (mouseY - y) * (newScale / currentScale);
+    setScale(newScale);
+    setPosition({ x: newX, y: newY });
+  };
+
+  const handleZoomReset = () => {
+    hasUserInteracted.current = false;
+    autoFitDiagram(true);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Avoid dragging if clicking buttons
+    if ((e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).closest('button')) return;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
     setIsDragging(true);
     hasUserInteracted.current = true;
     dragStart.current = { x: e.clientX - position.x, y: e.clientY - position.y };
@@ -1654,6 +2105,7 @@ export function NetworkDiagram({
   const lineColor = '#94a3b8';
   const routedLineColor = '#94a3b8';
 
+<<<<<<< HEAD
   return (
     <div className={`w-full h-full relative overflow-hidden transition-colors duration-200 ${darkMode ? 'bg-slate-950' : 'bg-slate-200'}`}>
       {/* Fixed Toolbar with Reset Positions Button */}
@@ -1669,6 +2121,73 @@ export function NetworkDiagram({
           </button>
         </div>
       )}
+=======
+  if (!hasActiveSelection) {
+    return (
+      <div className={`w-full h-full flex flex-col items-center justify-center p-8 select-none transition-colors duration-200 ${darkMode ? 'bg-slate-950' : 'bg-slate-200'}`}>
+        <div className={`max-w-md w-full p-8 rounded-3xl border shadow-xl text-center flex flex-col items-center transition-all ${
+          darkMode ? 'bg-slate-900/90 border-slate-800 text-slate-200 shadow-slate-950/50' : 'bg-white/95 border-slate-200/80 text-slate-800 shadow-slate-300/40'
+        }`}>
+          <div className="w-16 h-16 rounded-2xl bg-blue-600/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 shadow-xs">
+            <Sparkles className="w-8 h-8" />
+          </div>
+          <h3 className="text-base font-bold mb-2">
+            Kies een dienst om te starten
+          </h3>
+          <p className={`text-xs leading-relaxed max-w-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+            Selecteer in het linkerpaneel <strong className="text-blue-600 dark:text-blue-400">🎙️ Voice Diensten</strong> of <strong className="text-blue-600 dark:text-blue-400">🌐 Data Diensten</strong> om het netwerkdiagram op te bouwen.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`w-full h-full relative overflow-hidden transition-colors duration-200 ${darkMode ? 'bg-slate-950' : 'bg-slate-200'}`}>
+      {/* Floating Zoom & Canvas Controls (Zoom In, Zoom Out, Percentage, Reset Fit) */}
+      <div className="absolute bottom-6 right-6 z-50 flex items-center gap-1.5 p-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 shadow-xl backdrop-blur-md select-none">
+        <button
+          type="button"
+          onClick={handleZoomIn}
+          className="p-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          title="Inzoomen (+)"
+        >
+          <ZoomIn className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        </button>
+        <button
+          type="button"
+          onClick={handleZoomOut}
+          className="p-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          title="Uitzoomen (-)"
+        >
+          <ZoomOut className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        </button>
+        <div className="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-0.5" />
+        <button
+          type="button"
+          onClick={handleZoomReset}
+          className="px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center gap-1.5"
+          title="Passend maken op scherm"
+        >
+          <Maximize2 className="w-3.5 h-3.5 text-blue-500" />
+          <span>{Math.round(scale * 100)}%</span>
+        </button>
+        {Object.keys(customOffsets).length > 0 && (
+          <>
+            <div className="w-px h-5 bg-slate-200 dark:bg-slate-800 mx-0.5" />
+            <button
+              type="button"
+              onClick={handleResetPositions}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer flex items-center gap-1"
+              title={t.resetPositionsTooltip || 'Posities herstellen'}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>{t.resetPositions || 'Herstellen'}</span>
+            </button>
+          </>
+        )}
+      </div>
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
       {/* Interactive Pan/Zoom Canvas */}
       <div 
@@ -1699,7 +2218,11 @@ export function NetworkDiagram({
                 <div className="text-white text-2xl font-medium tracking-tight flex items-center gap-2">
                   {isEspritMulti ? (
                     <>
+<<<<<<< HEAD
                       <span className="font-semibold whitespace-nowrap">Esprit MultiCustomer:</span>
+=======
+                      <span className="font-semibold whitespace-nowrap">{activeClientName} MultiCustomer:</span>
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                       <InlineEdit 
                         value={effectiveCustomerName} 
                         placeholder="Klantnaam" 
@@ -1713,7 +2236,11 @@ export function NetworkDiagram({
                     </>
                   ) : (
                     <>
+<<<<<<< HEAD
                       <span className="font-semibold">SIP Design</span>
+=======
+                      <span className="font-semibold tracking-wide">{isDataService ? 'DESIGN' : 'SIP DESIGN'}</span>
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                       <span className="text-white/60 font-light">-</span>
                       <InlineEdit 
                         value={effectiveCustomerName} 
@@ -1744,11 +2271,27 @@ export function NetworkDiagram({
                   )}
                 </div>
               </div>
+<<<<<<< HEAD
               {servicesText && !isMultiAny && !isEspritMulti && (
                 <div className="text-white/90 text-sm font-semibold bg-white/15 px-3 py-1 rounded-full border border-white/20 select-none">
                   {servicesText}
                 </div>
               )}
+=======
+              
+              {/* Rechterzijde van de titelbalk: eventueel dienstenlabel + officieel VodafoneZiggo Logo */}
+              <div className="flex items-center gap-3.5">
+                {servicesText && !isMultiAny && !isEspritMulti && (
+                  <div className="text-white/90 text-sm font-semibold bg-white/15 px-3 py-1 rounded-full border border-white/20 select-none">
+                    {servicesText}
+                  </div>
+                )}
+                {/* VodafoneZiggo Logo rechts in de titelbalk (origineel logo, passend geschaald) */}
+                <div className="bg-white px-2.5 py-1 rounded-md flex items-center shadow-xs shrink-0 select-none" title="VodafoneZiggo">
+                  <VodafoneZiggoLogo className="h-7 w-auto max-h-[30px]" />
+                </div>
+              </div>
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
             </div>
 
         {/* Diagram Area (Light Schema) */}
@@ -1760,17 +2303,30 @@ export function NetworkDiagram({
              }}>
 
           {totalCpes === 0 && (
+<<<<<<< HEAD
             <div className="absolute inset-0 top-[260px] flex flex-col items-center justify-center pointer-events-none text-slate-400 z-30">
               <Network className="w-12 h-12 text-slate-300 mb-2 stroke-1" />
               <span className="font-semibold text-sm text-slate-600">{t.noCpesYet}</span>
               <span className="text-xs text-slate-400 mt-1 max-w-sm text-center">
                 {t.noCpesDesc}
+=======
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-slate-400 z-30 p-6">
+              <div className="w-14 h-14 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-center mb-3">
+                <Network className="w-7 h-7 text-blue-500 stroke-[1.5]" />
+              </div>
+              <span className="font-bold text-sm text-slate-700 dark:text-slate-200 mb-1">
+                Geen dienst of locatie geselecteerd
+              </span>
+              <span className="text-xs text-slate-400 max-w-sm text-center leading-relaxed">
+                Kies in het linkerpaneel een Voice of Data dienst om het netwerkdiagram op te bouwen.
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
               </span>
             </div>
           )}
           
           {/* SVG CONNECTION LINES */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+<<<<<<< HEAD
             {groups.map((group, i) => (
               <line 
                 key={`core-router-${i}`} 
@@ -1795,6 +2351,52 @@ export function NetworkDiagram({
                 />
               ))
             ))}
+=======
+            {groups.map((group, i) => {
+              const cloudBottomY = getIpVoiceCloudBottomY(group.routerX, TOTAL_WIDTH, CORE_Y, ipVoiceCloudW, ipVoiceCloudCenterX);
+              const effectiveRouterTop = (cloudBottomY - 2) + group.routerYOffset;
+              return (
+                <line 
+                  key={`core-router-${i}`} 
+                  x1={group.routerX} 
+                  y1={cloudBottomY - 2} 
+                  x2={group.routerX} 
+                  y2={effectiveRouterTop + 4} 
+                  stroke={lineColor} 
+                  strokeWidth="2" 
+                />
+              );
+            })}
+            {groups.map(group => {
+              const rCenterX = group.routerX;
+              const cloudBottomY = getIpVoiceCloudBottomY(group.routerX, TOTAL_WIDTH, CORE_Y, ipVoiceCloudW, ipVoiceCloudCenterX);
+              const effectiveRouterTop = (cloudBottomY - 2) + group.routerYOffset;
+              const rCenterY = effectiveRouterTop + group.routerHeight / 2;
+              return group.cpes.map(cpe => {
+                const cpeKey = `cpe-${cpe.id}`;
+                const cpeScale = customSizes[cpeKey]?.scale || 1;
+                const cpeWidth = 100 * cpeScale;
+                const cpeHeight = 40 * cpeScale;
+                const cpeCenterX = cpe.cpeX;
+                const cpeCenterY = CPE_Y + cpe.yOffset + cpeHeight / 2;
+
+                const routerAnchor = getBoxBorderPoint(rCenterX, rCenterY, group.routerWidth, group.routerHeight, cpeCenterX, cpeCenterY);
+                const cpeAnchor = getBoxBorderPoint(cpeCenterX, cpeCenterY, cpeWidth, cpeHeight, rCenterX, rCenterY);
+
+                return (
+                  <line 
+                    key={`line-${cpe.id}`} 
+                    x1={routerAnchor.x} 
+                    y1={routerAnchor.y} 
+                    x2={cpeAnchor.x} 
+                    y2={cpeAnchor.y} 
+                    stroke={lineColor} 
+                    strokeWidth="2" 
+                  />
+                );
+              });
+            })}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
             {groups.flatMap(g => g.cpes).map(cpe => {
               if (!cpe.hasGw) return null;
               
@@ -1804,6 +2406,7 @@ export function NetworkDiagram({
               if (!cluster) return null;
 
               const gwCenterX = cpe.gwLeft + 35;
+<<<<<<< HEAD
               const gwCenterY = cpe.gwY + 17.5;
 
               // Exacte aansluitpunt op de rand van de wolk naar het gateway center
@@ -1813,14 +2416,24 @@ export function NetworkDiagram({
               const angleGwToCloud = Math.atan2(cloudPoint.y - gwCenterY, cloudPoint.x - gwCenterX);
               const gwBorderX = gwCenterX + 35 * Math.cos(angleGwToCloud);
               const gwBorderY = gwCenterY + 17.5 * Math.sin(angleGwToCloud);
+=======
+              const cloudBottom = getCloudBottomY(cluster, gwCenterX, CPE_Y);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
               return (
                 <line 
                   key={`gw-line-${cpe.id}`} 
+<<<<<<< HEAD
                   x1={cloudPoint.x} 
                   y1={cloudPoint.y} 
                   x2={gwBorderX} 
                   y2={gwBorderY} 
+=======
+                  x1={gwCenterX} 
+                  y1={cloudBottom - 2} 
+                  x2={gwCenterX} 
+                  y2={cpe.gwY + 2} 
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                   stroke={lineColor} 
                   strokeWidth="2" 
                 />
@@ -1838,6 +2451,7 @@ export function NetworkDiagram({
                    return;
                  }
                  const pbxCenterX = pbx.x;
+<<<<<<< HEAD
                  const pbxCenterY = pbx.y + 24;
                  const cloudPoint = cluster 
                    ? getCloudConnectionPoint(cluster, pbxCenterX, pbxCenterY, CPE_Y)
@@ -1850,6 +2464,18 @@ export function NetworkDiagram({
                      y1={cloudPoint.y} 
                      x2={pbxPoint.x} 
                      y2={pbxPoint.y} 
+=======
+                 const cloudBottom = cluster 
+                   ? getCloudBottomY(cluster, pbxCenterX, CPE_Y)
+                   : CPE_Y + 40 + 160;
+                 lines.push(
+                   <line 
+                     key={`pbx-local-${pbx.id}`} 
+                     x1={pbxCenterX} 
+                     y1={cloudBottom - 2} 
+                     x2={pbxCenterX} 
+                     y2={pbx.y + 6} 
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                      stroke={lineColor} 
                      strokeWidth="2" 
                    />
@@ -1863,7 +2489,11 @@ export function NetworkDiagram({
                  const angleGwToPbx = Math.atan2(pbxCenterY - gwCenterY, pbxCenterX - gwCenterX);
                  const gwBorderX = gwCenterX + 35 * Math.cos(angleGwToPbx);
                  const gwBorderY = gwCenterY + 17.5 * Math.sin(angleGwToPbx);
+<<<<<<< HEAD
                  const pbxPoint = getBoxBorderPoint(pbxCenterX, pbxCenterY, 48, 48, gwBorderX, gwBorderY);
+=======
+                 const pbxPoint = getBoxBorderPoint(pbxCenterX, pbxCenterY, 40, 36, gwBorderX, gwBorderY);
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                  lines.push(
                    <line 
                      key={`pbx-routed-${pbx.id}`} 
@@ -1879,6 +2509,7 @@ export function NetworkDiagram({
                });
                return lines;
             })}
+<<<<<<< HEAD
           </svg>
 
           {/* IP Voice Access Network Ellipse */}
@@ -2001,17 +2632,114 @@ export function NetworkDiagram({
               </div>
             );
           })()}
+=======
+
+            {/* Esprit Multicustomer Connectors */}
+            {groups.flatMap(g => g.lanClusters).filter(cl => cl.isEsprit).map(cluster => {
+              const fwOffset = customOffsets[`fw-${cluster.id}`] || { x: 0, y: 0 };
+              const smallCloudOffset = customOffsets[`small-cloud-${cluster.id}`] || { x: 0, y: 0 };
+              const mainCloudBottom = getCloudBottomY(cluster, cluster.centerX + fwOffset.x, CPE_Y);
+              const fwX = cluster.centerX + fwOffset.x;
+              const fwY = (mainCloudBottom - 2) + fwOffset.y;
+              const fwWidth = 54;
+              const fwHeight = 40;
+              const smallCloudWidth = 180;
+              const smallCloudHeight = 75;
+              const smallCloudX = cluster.centerX + smallCloudOffset.x;
+              // Kleine Customer LAN wolk sluit direct en naadloos aan op de onderzijde van de firewall
+              const smallCloudY = (mainCloudBottom + 30) + smallCloudOffset.y;
+
+              const lines = [];
+              if (fwY > mainCloudBottom + 1 || Math.abs(fwOffset.x) > 3) {
+                lines.push(
+                  <line
+                    key={`esprit-cloud-fw-${cluster.id}`}
+                    x1={cluster.centerX}
+                    y1={mainCloudBottom}
+                    x2={fwX}
+                    y2={fwY}
+                    stroke={lineColor}
+                    strokeWidth="2"
+                  />
+                );
+              }
+              const fwBottomY = fwY + fwHeight;
+              const smallCloudTopPuff = smallCloudY + 6;
+              if (smallCloudTopPuff > fwBottomY + 2 || Math.abs(smallCloudX - fwX) > 3) {
+                lines.push(
+                  <line
+                    key={`esprit-fw-smallcloud-${cluster.id}`}
+                    x1={fwX}
+                    y1={fwBottomY}
+                    x2={smallCloudX}
+                    y2={smallCloudTopPuff}
+                    stroke={lineColor}
+                    strokeWidth="2"
+                  />
+                );
+              }
+              return lines;
+            })}
+          </svg>
+
+          {/* IP Voice Access Network Ovale Wolk (Alleen tonen als er minstens 1 CPE is én het een Voice dienst betreft) */}
+          {totalCpes > 0 && locations.some(loc => (loc.cpes || []).some(c => {
+            const def = findServiceDefinition(c.serviceType);
+            return !def || def.category !== 'data';
+          })) && (
+            <DiagramIpVoiceCloud
+              CORE_Y={CORE_Y}
+              TOTAL_WIDTH={TOTAL_WIDTH}
+              ipVoiceAccessNetworkText={t.ipVoiceAccessNetwork || 'IP Voice Access Network'}
+              sbcClusterText={t.sbcCluster || 'SBC Cluster'}
+              customSizes={customSizes}
+              customOffsets={customOffsets}
+              startRightDrag={startRightDrag}
+              startResizeDrag={startResizeDrag}
+              handleResetItemSize={handleResetItemSize}
+              resizeDragState={resizeDragState}
+              cloudW={ipVoiceCloudW}
+              cloudCenterX={ipVoiceCloudCenterX}
+            />
+          )}
+
+          {/* Multicustomer Mediant Extra Tekstblok */}
+          {totalCpes > 0 && (
+            <DiagramMulticustomerBlock
+              multicustomerInfo={multicustomerInfo}
+              groups={groups}
+              TOTAL_WIDTH={TOTAL_WIDTH}
+              customOffsets={customOffsets}
+              startRightDrag={startRightDrag}
+              handleUpdateMulticustomerField={handleUpdateMulticustomerField}
+              darkMode={darkMode}
+            />
+          )}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
           {/* Nodes grouped by Location */}
           {groups.map((group, groupIdx) => (
             <React.Fragment key={`group-${groupIdx}`}>
               {/* Core Router (gewone enterprise netwerkrouter, geen wireless) */}
+<<<<<<< HEAD
               <div 
                 className="absolute flex flex-col items-center z-20 select-none cursor-grab active:cursor-grabbing group/node" 
                 style={{ top: ROUTER_Y + group.routerYOffset, left: group.routerX, transform: 'translateX(-50%)' }}
                 onMouseDown={e => startRightDrag(`router-${group.locId || groupIdx}`, e)}
                 onContextMenu={e => e.preventDefault()}
               >
+=======
+              {(() => {
+                const cloudBottomY = getIpVoiceCloudBottomY(group.routerX, TOTAL_WIDTH, CORE_Y, ipVoiceCloudW, ipVoiceCloudCenterX);
+                const effectiveTop = (cloudBottomY - 2) + group.routerYOffset;
+                return (
+                  <div 
+                    className="absolute flex flex-col items-center z-20 select-none cursor-grab active:cursor-grabbing group/node" 
+                    style={{ top: effectiveTop, left: group.routerX, transform: 'translateX(-50%)' }}
+                    onMouseDown={e => startRightDrag(`router-${group.locId || groupIdx}`, e)}
+                    onContextMenu={e => e.preventDefault()}
+                  >
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                 <div className="relative">
                   <CoreRouterSvg width={group.routerWidth} height={group.routerHeight} />
                   <div 
@@ -2057,6 +2785,11 @@ export function NetworkDiagram({
                   </div>
                 )}
               </div>
+<<<<<<< HEAD
+=======
+            );
+          })()}
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
               {/* Customer LAN Wolken per subnet cluster in deze locatie (grenst direct aan de CPE's) */}
               {group.lanClusters.map(cluster => (
@@ -2179,6 +2912,7 @@ export function NetworkDiagram({
                     const fwY = (mainCloudBottom - 2) + fwOffset.y;
                     const fwX = cluster.centerX + fwOffset.x;
 
+<<<<<<< HEAD
                     // Kleine Customer LAN wolk sluit direct aan op de onderzijde van de firewall:
                     const smallCloudY = (mainCloudBottom + 38) + smallCloudOffset.y;
 
@@ -2186,6 +2920,16 @@ export function NetworkDiagram({
                     const espritCfg = getEspritConfigByNumber(cfg3);
                     const cpe0 = group.cpes.find(c => cluster.cpeIds.includes(c.id)) || group.cpes[0];
                     const pbxIp = cpe0?.pbxs?.[0]?.ip || espritCfg.primaryPbxIp || '10.20.2.1';
+=======
+                    // Kleine Customer LAN wolk sluit direct en naadloos aan op de onderzijde van de firewall:
+                    const smallCloudY = (mainCloudBottom + 30) + smallCloudOffset.y;
+
+                    const cfg3 = cluster.configNr3 || '001';
+                    const clientName = cluster.clientName || multicustomerInfo?.client || 'Esprit';
+                    const espritCfg = getEspritConfigByNumber(cfg3, clientName);
+                    const cpe0 = group.cpes.find(c => cluster.cpeIds.includes(c.id)) || group.cpes[0];
+                    const pbxIp = cpe0?.pbxs?.[0]?.ip || espritCfg.primaryPbxIp || (clientName.includes('IP Voice') ? `10.69.69.${parseInt(cfg3, 10) || 1}` : '10.20.2.1');
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
 
                     return (
                       <React.Fragment key={`esprit-fw-elements-${cluster.id}`}>
@@ -2285,12 +3029,25 @@ export function NetworkDiagram({
                 </React.Fragment>
               ))}
               
+<<<<<<< HEAD
               {/* Demarcatielijn per locatie, past zich automatisch aan de positie van de Mediant(s) aan bij verplaatsen (niet bij Multicustomer) */}
               {group.showDemarcationLine && !isMultiAny && !isEspritMulti && !group.cpes.some(c => c.serviceType === 'Multicustomer' || c.isMulticustomer) && group.cpes.length > 0 && (() => {
                 // Groepeer op Y-hoogte zodat bij verplaatsen van een Mediant de demarcatielijn exact op Mediant-hoogte meebeweegt
                 const yGroups = new Map<number, typeof group.cpes>();
                 group.cpes.forEach(cpe => {
                   const yVal = CPE_Y + cpe.yOffset + 20;
+=======
+              {/* Demarcatielijn per locatie, past zich automatisch aan de positie van de Mediant(s) aan bij verplaatsen */}
+              {group.showDemarcationLine && group.cpes.length > 0 && (() => {
+                // Groepeer op Y-hoogte zodat bij verplaatsen van een Mediant de demarcatielijn exact op Mediant-hoogte meebeweegt
+                const yGroups = new Map<number, typeof group.cpes>();
+                group.cpes.forEach(cpe => {
+                  const cpeKey = `cpe-${cpe.id}`;
+                  const cpeScale = customSizes[cpeKey]?.scale || 1;
+                  const cpeHeight = 40 * cpeScale;
+                  // Exact in het midden van de Mediant (20px) en exact tussen WAN IP (bovenste rij) en LAN IP (onderste rij)
+                  const yVal = CPE_Y + cpe.yOffset + cpeHeight / 2;
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                   let matchedY: number | null = null;
                   for (const existingY of yGroups.keys()) {
                     if (Math.abs(existingY - yVal) <= 15) {
@@ -2305,10 +3062,42 @@ export function NetworkDiagram({
                 });
 
                 return Array.from(yGroups.entries()).map(([demY, cpesAtY], idx) => {
+<<<<<<< HEAD
                   const minX = Math.min(...cpesAtY.map(c => c.cpeX));
                   const maxX = Math.max(...cpesAtY.map(c => c.cpeX));
                   const demLeft = minX - 220;
                   const demWidth = (maxX - minX) + 440;
+=======
+                  // Bereken de uiterste linker- en rechtergrenzen inclusief IP-labels en elementen
+                  const leftBounds = cpesAtY.map(c => {
+                    const cpeKey = `cpe-${c.id}`;
+                    const cpeScale = customSizes[cpeKey]?.scale || 1;
+                    const halfW = (100 * cpeScale) / 2;
+                    const is007 = c.hostname?.includes('007') || c.hostname?.includes('005') || (c.hostname?.includes('002') && (c.hostname?.includes('UFC') || c.multicustomerClient === 'IP Voice Group')) || (group.cpes.indexOf(c) === 1);
+                    const hasLeftIpBox = !is007;
+                    return c.cpeX - (hasLeftIpBox ? (halfW + 180) : (halfW + 40));
+                  });
+
+                  const rightBounds = cpesAtY.map(c => {
+                    const cpeKey = `cpe-${c.id}`;
+                    const cpeScale = customSizes[cpeKey]?.scale || 1;
+                    const halfW = (100 * cpeScale) / 2;
+                    const is007 = c.hostname?.includes('007') || c.hostname?.includes('005') || (c.hostname?.includes('002') && (c.hostname?.includes('UFC') || c.multicustomerClient === 'IP Voice Group')) || (group.cpes.indexOf(c) === 1);
+                    const isVovCn = c.serviceType === 'VOV+CN' || c.serviceType === 'VOV & CN' || c.serviceType === 'VOV + CN' || Boolean(findServiceDefinition(c.serviceType)?.hasCn);
+                    const hasRightIpBox = is007 || isVovCn;
+                    let rightPos = c.cpeX + (hasRightIpBox ? (halfW + 180) : (halfW + 40));
+                    if (c.hasGw && c.gwLeft) {
+                      rightPos = Math.max(rightPos, c.gwLeft + 160);
+                    }
+                    return rightPos;
+                  });
+
+                  const minX = Math.min(...leftBounds);
+                  const maxX = Math.max(...rightBounds);
+                  const demLeft = minX - 25;
+                  const demWidth = (maxX - minX) + 50;
+
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                   return (
                     <div 
                       key={`dem-${group.locId || groupIdx}-${idx}`}
@@ -2372,13 +3161,21 @@ export function NetworkDiagram({
                             inputClassName="uppercase"
                           />
                         </span>
+<<<<<<< HEAD
                         {!(cpe.serviceType === 'Multicustomer' || cpe.isMulticustomer || Boolean(cpe.multicustomerClient) || Boolean(multicustomerInfo)) && (
+=======
+                        {!(cpe.serviceType === 'Multicustomer' || cpe.serviceType === 'Multicustomer - Esprit' || cpe.serviceType?.startsWith('Multicustomer') || cpe.isMulticustomer || Boolean(cpe.multicustomerClient) || Boolean(multicustomerInfo)) && (
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                           <span className="text-[10px] font-black text-white bg-blue-600 px-2 py-0.5 rounded-sm shadow-sm hover:bg-blue-700">
                             <InlineEdit 
                               value={cpe.serviceType || 'Dienst'} 
                               placeholder="Dienst" 
                               onSave={(val) => handleUpdateCpeField(cpe.id, 'serviceType', val)}
+<<<<<<< HEAD
                               title="Klik om type dienst direct aan te passen (VOV, CN, VOV + CN)"
+=======
+                              title="Klik om type dienst direct aan te passen (VOV, CN, VOV+CN, Multicustomer Esprit)"
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                               className="text-white hover:text-white"
                               inputClassName="text-slate-900 font-bold"
                             />
@@ -2395,7 +3192,11 @@ export function NetworkDiagram({
 
                       if (service === 'CN') {
                         return (
+<<<<<<< HEAD
                           <div className="absolute top-0 right-[calc(100%+10px)] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+=======
+                          <div className="absolute top-1/2 -translate-y-1/2 right-[calc(100%+10px)] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                             <div className="grid grid-cols-[auto_auto] gap-x-1.5 gap-y-0.5 text-left items-center">
                               <span className="text-blue-700 font-bold text-[11px] leading-tight whitespace-nowrap text-left">CN WAN:</span>
                               <InlineEdit 
@@ -2420,12 +3221,21 @@ export function NetworkDiagram({
                         );
                       }
 
+<<<<<<< HEAD
                       const isEsprit = (cpe.serviceType === 'Multicustomer' || cpe.isMulticustomer) && (cpe.multicustomerClient === 'Esprit' || isEspritMulti);
                       const is007 = cpe.hostname?.includes('007') || (isEsprit && cpeIndex === 1);
 
                       if (is007) {
                         return (
                           <div className="absolute top-0 left-[110px] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+=======
+                      const isEsprit = Boolean(cpe.serviceType === 'Multicustomer' || cpe.isMulticustomer || cpe.serviceType?.startsWith('Multicustomer') || cpe.multicustomerClient || isEspritMulti || multicustomerInfo);
+                      const is007 = cpe.hostname?.includes('007') || cpe.hostname?.includes('005') || (cpe.hostname?.includes('002') && (cpe.hostname?.includes('UFC') || cpe.multicustomerClient === 'IP Voice Group')) || (isEsprit && cpeIndex === 1);
+
+                      if (is007) {
+                        return (
+                          <div className="absolute top-1/2 -translate-y-1/2 left-[110px] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                             <div className="grid grid-cols-[auto_auto] gap-x-1.5 gap-y-0.5 text-left items-center">
                               <span className="text-red-800 font-bold text-[11px] leading-tight whitespace-nowrap text-left">{servicePrefix}WAN:</span>
                               <InlineEdit 
@@ -2451,7 +3261,11 @@ export function NetworkDiagram({
                       }
 
                       return (
+<<<<<<< HEAD
                         <div className="absolute top-0 right-[calc(100%+10px)] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+=======
+                        <div className="absolute top-1/2 -translate-y-1/2 right-[calc(100%+10px)] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                           <div className="grid grid-cols-[auto_auto] gap-x-1.5 gap-y-0.5 text-left items-center">
                             <span className="text-red-800 font-bold text-[11px] leading-tight whitespace-nowrap text-left">{servicePrefix}WAN:</span>
                             <InlineEdit 
@@ -2476,9 +3290,15 @@ export function NetworkDiagram({
                       );
                     })()}
 
+<<<<<<< HEAD
                     {/* IP Info labels: Rechts van Mediant (alleen bij combidienst met CN: VOV + CN) - DIRECT BEWERKBAAR */}
                     {(cpe.serviceType === 'VOV + CN' || Boolean(findServiceDefinition(cpe.serviceType)?.hasCn) || (cpe.serviceType === 'Multicustomer' && cpe.multicustomerVariant === 'VOV + CN')) && (
                       <div className="absolute top-0 left-[110px] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+=======
+                    {/* IP Info labels: Rechts van Mediant (alleen bij combidienst met CN: VOV & CN) - DIRECT BEWERKBAAR */}
+                    {isCombiServiceWithCn(cpe.serviceType, cpe.multicustomerVariant) && (
+                      <div className="absolute top-1/2 -translate-y-1/2 left-[110px] text-left whitespace-nowrap bg-white/90 p-1.5 rounded border border-slate-200 shadow-xs z-30">
+>>>>>>> 8a0c9972348d611f55b3da403fc0605dbd3e2d24
                         <div className="grid grid-cols-[auto_auto] gap-x-1.5 gap-y-0.5 text-left items-center">
                           <span className="text-blue-700 font-bold text-[11px] leading-tight whitespace-nowrap text-left">CN WAN:</span>
                           <InlineEdit 
